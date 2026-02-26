@@ -18,7 +18,7 @@ import DashboardRoutes from './routes/dashboad.route.js'
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+
 app.use(cors({
   origin: [
 
@@ -33,7 +33,7 @@ app.use(cors({
   credentials: true
 }));
 
-
+app.use(express.json());
 
 
 
