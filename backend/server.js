@@ -25,8 +25,9 @@ app.use(cors({
 // //  "http://localhost:5173"
 //   "https://goiftaradmin.onrender.com",
 //     "https://goiftar.onrender.com"
-"https://zwipezadminpanel.onrender.com/",
-"https://zwipezadminpanel-1.onrender.com/"
+"https://zwipezadminpanel-1.onrender.com/",
+"https://zwipezadminpanel.onrender.com/"
+
 
    ],
   credentials: true
