@@ -9,8 +9,7 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL  
-  , ssl: isProduction ? { rejectUnauth
-    orized: false } : { rejectUnauthorized: false }
+  , ssl: isProduction ? { rejectUnauthorized: false } : { rejectUnauthorized: false }
 });
 
 async function connectDB() {
