@@ -74,6 +74,43 @@ export const getProducts = async (req, res) => {
   }
 };
 
+
+// get products by category
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT
+        p.id,
+        p.name,
+        p.category_id,
+        c.name AS category_name,
+        p.original_price,
+        p.price,
+        p.country,
+        p.unit,
+        p.description,
+        p.image_url,
+        p.is_active,
+        p.created_at
+      FROM products p
+      JOIN categories c ON p.category_id = c.id
+      WHERE p.category_id = $1
+      ORDER BY p.id ASC
+      `,
+      [id]
+    );
+
+    res.status(200).json(result.rows);
+
+  } catch (err) {
+    console.error("Get products by category error:", err);
+    res.status(500).json({ error: "Failed to fetch products by category" });
+  }
+};
+
 //update
 export const updateProduct = async (req, res) => {
   const { id } = req.params;

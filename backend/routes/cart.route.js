@@ -17,6 +17,6 @@ router.get("/getCart", getCart);
 router.delete('/cart/item/:itemId', removeItem);
 
 
-router.delete("/clear/:customerId", clearCart);
+router.delete("/clear", clearCart);
 
 export default router;

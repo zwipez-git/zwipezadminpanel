@@ -5,12 +5,12 @@ const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secret";
 
 export const addToCart = async (req, res) => {
 
-  const accesstoken = req.headers.accesstoken;
-  const customerId = req.headers.customerid;
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
 
   const { productId, quantity } = req.body;
 
-  if (!accesstoken || !customerId) {
+  if (!accessToken || !id) {
     return res.status(401).json({ message: "Access token and customerId required" });
   }
 
@@ -21,10 +21,10 @@ export const addToCart = async (req, res) => {
   try {
 
     // Verify token
-    const decoded = jwt.verify(accesstoken, JWT_SECRET);
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
 
  
-    if (decoded.customerId != customerId) {
+   if (decoded.customerId != id) {
       return res.status(401).json({ message: "Customer ID mismatch" });
     }
 
@@ -46,7 +46,7 @@ export const addToCart = async (req, res) => {
     let cartRes = await pool.query(
       `SELECT id FROM carts
        WHERE customer_id = $1 AND status = 'ACTIVE'`,
-      [customerId]
+      [id]
     );
 
     let cartId;
@@ -56,7 +56,7 @@ export const addToCart = async (req, res) => {
         `INSERT INTO carts (customer_id, status, created_at)
          VALUES ($1, 'ACTIVE', NOW())
          RETURNING id`,
-        [customerId]
+        [id]
       );
 
       cartId = newCart.rows[0].id;
@@ -121,20 +121,20 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
 
-  const accesstoken = req.headers.accesstoken;
-  const customerId = req.headers.customerid;
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
 
-  if (!accesstoken || !customerId) {
+  if (!accessToken || !id) {
     return res.status(401).json({ message: "Access token and customerId required" });
   }
 
   try {
 
 
-    const decoded = jwt.verify(accesstoken, JWT_SECRET);
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
 
 
-    if (decoded.customerId != customerId) {
+ if (decoded.customerId != id) {
       return res.status(401).json({ message: "Customer ID mismatch" });
     }
 
@@ -142,12 +142,12 @@ export const getCart = async (req, res) => {
     const cartRes = await pool.query(
       `SELECT id FROM carts
        WHERE customer_id = $1 AND status = 'ACTIVE'`,
-      [customerId]
+      [id]
     );
 
     if (cartRes.rows.length === 0) {
       return res.json({
-        customerId,
+        id,
         items: [],
         totalAmount: 0
       });
@@ -181,7 +181,7 @@ export const getCart = async (req, res) => {
     );
 
     res.json({
-      customerId,
+      id,
       items: itemsRes.rows,
       totalAmount
     });
@@ -198,12 +198,41 @@ export const getCart = async (req, res) => {
 };
 
 
-export const  removeItem = async (req, res) => {
+export const removeItem = async (req, res) => {
+
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
   const { itemId } = req.params;
 
+  if (!accessToken || !id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   try {
-    await pool.query("DELETE FROM cart_items WHERE id = $1", [itemId]);
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
+
+    if (decoded.customerId != id) {
+      return res.status(401).json({ message: "Customer ID mismatch" });
+    }
+
+    const cartRes = await pool.query(
+      `SELECT id FROM carts WHERE customer_id = $1 AND status = 'ACTIVE'`,
+      [id]
+    );
+
+    if (!cartRes.rows.length) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const cartId = cartRes.rows[0].id;
+
+    await pool.query(
+      `DELETE FROM cart_items WHERE id = $1 AND cart_id = $2`,
+      [itemId, cartId]
+    );
+
     res.json({ message: "Item removed from cart" });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -211,20 +240,48 @@ export const  removeItem = async (req, res) => {
 };
 
 export const clearCart = async (req, res) => {
-  const { customerId } = req.params;
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
+
+  if (!accessToken || !id) {
+    return res.status(401).json({ message: "Access token and customerId required" });
+  }
 
   try {
+
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
+
+  if (decoded.customerId != id) {
+      return res.status(401).json({ message: "Customer ID mismatch" });
+    }
+
+   
+    const cartRes = await pool.query(
+      `SELECT id FROM carts
+       WHERE customer_id = $1 AND status = 'ACTIVE'`,
+      [id]
+    );
+
+    if (!cartRes.rows.length) {
+      return res.status(404).json({ message: "Active cart not found" });
+    }
+
+    const cartId = cartRes.rows[0].id;
+
+ 
     await pool.query(
-      `DELETE FROM cart_items
-       WHERE cart_id IN (
-         SELECT id FROM carts WHERE customer_id = $1
-       )`,
-      [customerId]
+      `DELETE FROM cart_items WHERE cart_id = $1`,
+      [cartId]
     );
 
     res.json({ message: "Cart cleared successfully" });
+
   } catch (err) {
-    console.error(err);
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Access token expired" });
+    }
+
+    console.error("Clear cart error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
