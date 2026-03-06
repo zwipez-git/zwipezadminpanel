@@ -7,7 +7,7 @@ import BannerList from "./BannerList";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-function Catalog({ activeForm, setActiveForm, setActiveView}) {
+function Catalogs({ activeForm, setActiveForm, setActiveView}) {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -33,4 +33,4 @@ function Catalog({ activeForm, setActiveForm, setActiveView}) {
   );
 }
 
-export default Catalog;
+export default Catalogs;

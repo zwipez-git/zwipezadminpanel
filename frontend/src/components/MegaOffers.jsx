@@ -136,36 +136,48 @@ function MegaOffers({ activeForm }) {
 
   const handleUpdateOffer = async (id) => {
 
-    let imageUrl = editForm.image_url;
+  let imageUrl = editForm.image_url;
 
-    if (editImageFile) {
-      imageUrl = await uploadToCloudinary(editImageFile, "megaoffers");
-    }
+  if (editImageFile) {
+    imageUrl = await uploadToCloudinary(editImageFile, "megaoffers");
+  }
 
+  const res = await fetch(`${API_BASE_URL}/api/megaoffers/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...editForm, image_url: imageUrl }),
+  });
+
+  await res.json();
+
+  setMegaOffers(prev =>
+    prev.map(o =>
+      o.id === id
+        ? { ...o, ...editForm, image_url: imageUrl }
+        : o
+    )
+  );
+
+  setEditingId(null);
+};
+
+const handleDeleteOffer = async (id) => {
+  if (!window.confirm("Delete this offer?")) return;
+
+  try {
     const res = await fetch(`${API_BASE_URL}/api/megaoffers/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...editForm, image_url: imageUrl }),
-    });
-
-    const data = await res.json();
-
-    setMegaOffers(prev =>
-      prev.map(o => (o.id === id ? data.product : o))
-    );
-
-    setEditingId(null);
-  };
-
-  const handleDeleteOffer = async (id) => {
-    if (!window.confirm("Delete this offer?")) return;
-
-    await fetch(`${API_BASE_URL}/api/megaoffers/${id}`, {
       method: "DELETE",
     });
 
+    if (!res.ok) throw new Error("Delete failed");
+
     setMegaOffers(prev => prev.filter(o => o.id !== id));
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete offer");
+  }
+};
+
   return (
 <>
 
@@ -256,22 +268,22 @@ function MegaOffers({ activeForm }) {
           </div>
         )}
 
- <div
+<div
   className="
     fixed top-0 right-0 
     h-screen w-90 
-     shadow-3xl z-50
-   m-4 rounded-[5px]
-   overflow-y-auto  custom-scroll  
+    shadow-3xl z-50
+    m-4 rounded-[5px]
+    overflow-y-auto custom-scroll
   "
 >
-  {products.length > 0 && (
+  {activeForm === "megaoffer" && products.length > 0 && (
     <div className="p-6 space-y-4">
       {products.map((prod) => (
         <div
           key={prod.id}
           onClick={() => handleProductSelect(prod)}
-          className="border  border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-lg transition"
+          className="border border-gray-200 rounded-xl p-4 cursor-pointer hover:shadow-lg transition"
         >
           <img
             src={prod.image_url}
@@ -352,7 +364,7 @@ function MegaOffers({ activeForm }) {
                     onChange={e =>
                       setEditForm({ ...editForm, name: e.target.value })
                     }
-                    className=" p-1 w-full"
+                    className=" p-1 w-full border"
                   />
                 ) : (
                   offer.name
@@ -361,12 +373,39 @@ function MegaOffers({ activeForm }) {
 
               <td className=" px-4 py-2">{offer.category_name}</td>
 
-              <td className=" px-4 py-2">
-                ₹{offer.offer_price} <br />
-                <span className="line-through text-gray-400">
-                  ₹{offer.price}
-                </span>
-              </td>
+             <td className=" px-4 py-2">
+
+{editingId === offer.id ? (
+
+
+
+<input
+type="number"
+value={editForm.offer_price}
+onChange={(e)=>
+setEditForm({...editForm,offer_price:e.target.value})
+}
+className="border p-1 w-24"
+/>
+
+
+
+) : (
+
+<>
+₹{offer.offer_price}
+
+<br/>
+
+<span className="line-through text-gray-400">
+₹{offer.price}
+</span>
+
+</>
+
+)}
+
+</td>
 
               <td className="px-4 py-2 text-center">
                 {editingId === offer.id ? (

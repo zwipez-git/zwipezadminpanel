@@ -5,7 +5,7 @@ import Search_bar from '../../assets/Search_bar.png'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-function Catalogs() {
+function CategoryList() {
   const [categories, setCategories] = useState([]);
 
 
@@ -235,4 +235,4 @@ function Catalogs() {
   );
 }
 
-export default Catalogs;
+export default CategoryList;
