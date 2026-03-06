@@ -263,7 +263,8 @@ function ProductList({ setActiveForm, setActiveView }) {
 
               <tbody>
                 {filteredProducts.map((prod, index) => {
-                  // const country = normalizeCountry(prod.country);
+                  // const country = 
+                  // normalizeCountry(prod.country);
 
                   return (
                     <tr key={prod.id}>
