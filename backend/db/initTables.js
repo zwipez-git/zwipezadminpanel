@@ -45,14 +45,14 @@ export const initTables = async () => {
       );
     `);
 
-  //product table
+  //product table  country VARCHAR(100),
     await pool.query(`CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
   original_price NUMERIC(10,2),
   price NUMERIC(10,2),
-  country VARCHAR(100),
+ 
   unit VARCHAR(50),
   description TEXT,
   image_url TEXT,
@@ -61,7 +61,7 @@ export const initTables = async () => {
 );
     `);
 
-//mega offer table
+//mega offer table   country VARCHAR(100),
       await pool.query(`
         CREATE TABLE IF NOT EXISTS  mega_offers (
   id SERIAL PRIMARY KEY,
@@ -69,7 +69,7 @@ export const initTables = async () => {
   category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
   price NUMERIC(10,2),
   offer_price NUMERIC(10,2),
-  country VARCHAR(100),
+
   unit VARCHAR(50),
   description TEXT,
   image_url TEXT,
@@ -92,7 +92,7 @@ export const initTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-//customers
+//customers   country VARCHAR(100),
     await pool.query(`
       CREATE TABLE IF NOT EXISTS customers(
   id SERIAL PRIMARY KEY,
@@ -103,7 +103,7 @@ export const initTables = async () => {
   dob DATE,
   city VARCHAR(100),
   state VARCHAR(100),
-  country VARCHAR(100),
+
   pincode VARCHAR(10),
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -130,7 +130,7 @@ await pool.query(`
 
 `)
 
-//cart items
+//cart items     country VARCHAR(100),
 
 await pool.query(`
   CREATE TABLE IF NOT EXISTS cart_items (
@@ -142,7 +142,7 @@ await pool.query(`
   category_id INTEGER REFERENCES categories(id),
 
   unit VARCHAR(50),
-  country VARCHAR(100),
+
 
   price NUMERIC(10,2),
   quantity NUMERIC(10,2),

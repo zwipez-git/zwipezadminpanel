@@ -202,13 +202,19 @@ export const removeItem = async (req, res) => {
 
   const accessToken = req.headers.accesstoken;
   const id = req.headers.id;
-  const { itemId } = req.params;
+
+  const { cart_item_id } = req.body;
 
   if (!accessToken || !id) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  if (!cart_item_id ) {
+    return res.status(400).json({ message: " Cart Item Id required" });
+  }
+
   try {
+
     const decoded = jwt.verify(accessToken, JWT_SECRET);
 
     if (decoded.customerId != id) {
@@ -216,7 +222,8 @@ export const removeItem = async (req, res) => {
     }
 
     const cartRes = await pool.query(
-      `SELECT id FROM carts WHERE customer_id = $1 AND status = 'ACTIVE'`,
+      `SELECT id FROM carts
+       WHERE customer_id = $1 AND status = 'ACTIVE'`,
       [id]
     );
 
@@ -227,14 +234,20 @@ export const removeItem = async (req, res) => {
     const cartId = cartRes.rows[0].id;
 
     await pool.query(
-      `DELETE FROM cart_items WHERE id = $1 AND cart_id = $2`,
-      [itemId, cartId]
+      `DELETE FROM cart_items
+       WHERE id = $1 AND cart_id = $2`,
+      [cart_item_id , cartId]
     );
 
     res.json({ message: "Item removed from cart" });
 
   } catch (err) {
-    console.error(err);
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Access token expired" });
+    }
+
+    console.error("Remove item error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

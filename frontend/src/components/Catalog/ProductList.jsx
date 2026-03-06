@@ -9,30 +9,30 @@ import Search_bar from "../../assets/Search_bar.png";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-const countryMap = {
-  india: { code: "IN", name: "India" },
-  in: { code: "IN", name: "India" },
+// const countryMap = {
+//   india: { code: "IN", name: "India" },
+//   in: { code: "IN", name: "India" },
 
-  usa: { code: "US", name: "United States" },
-  us: { code: "US", name: "United States" },
-  america: { code: "US", name: "United States" },
+//   usa: { code: "US", name: "United States" },
+//   us: { code: "US", name: "United States" },
+//   america: { code: "US", name: "United States" },
 
-  uk: { code: "GB", name: "United Kingdom" },
-  england: { code: "GB", name: "United Kingdom" },
+//   uk: { code: "GB", name: "United Kingdom" },
+//   england: { code: "GB", name: "United Kingdom" },
 
-  canada: { code: "CA", name: "Canada" },
-  ca: { code: "CA", name: "Canada" },
+//   canada: { code: "CA", name: "Canada" },
+//   ca: { code: "CA", name: "Canada" },
 
-  dubai: { code: "AE", name: "United Arab Emirates" },
-  dxb: { code: "AE", name: "United Arab Emirates" },
-  uae: { code: "AE", name: "United Arab Emirates" },
-  "united arab emirates": { code: "AE", name: "United Arab Emirates" },
-};
+//   dubai: { code: "AE", name: "United Arab Emirates" },
+//   dxb: { code: "AE", name: "United Arab Emirates" },
+//   uae: { code: "AE", name: "United Arab Emirates" },
+//   "united arab emirates": { code: "AE", name: "United Arab Emirates" },
+// };
 
-const normalizeCountry = (value) => {
-  if (!value) return null;
-  return countryMap[value.trim().toLowerCase()] || null;
-};
+// const normalizeCountry = (value) => {
+//   if (!value) return null;
+//   return countryMap[value.trim().toLowerCase()] || null;
+// };
 
 function ProductList({ setActiveForm, setActiveView }) {
   const [categories, setCategories] = useState([]);
@@ -50,7 +50,7 @@ function ProductList({ setActiveForm, setActiveView }) {
     category_id: "",
     original_price: "",
     price: "",
-    country: "",
+    // country: "",
     unit: "",
     description: "",
     image_url: "",
@@ -249,13 +249,13 @@ function ProductList({ setActiveForm, setActiveView }) {
               <thead className="bg-gray-200">
                 <tr>
                   <th className="px-3 py-2">Image</th>
-                  <th className="px-3 py-2 w-150">Name</th>
+                  <th className="px-3 py-2 w-100">Name</th>
                   <th className="px-3 py-2">ID</th>
                   <th className="px-3 py-2">Category</th>
                   <th className="px-3 py-2">Original Price</th>
                   <th className="px-3 py-2">Price</th>
                   <th className="px-3 py-2">Unit</th>
-                  <th className="px-3 py-2">Country</th>
+                  {/* <th className="px-3 py-2">Country</th> */}
                   <th className="px-3 py-2">Status</th>
                   <th className="px-3 py-2">Actions</th>
                 </tr>
@@ -263,7 +263,7 @@ function ProductList({ setActiveForm, setActiveView }) {
 
               <tbody>
                 {filteredProducts.map((prod, index) => {
-                  const country = normalizeCountry(prod.country);
+                  // const country = normalizeCountry(prod.country);
 
                   return (
                     <tr key={prod.id}>
@@ -363,7 +363,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                           prod.unit
                         )}
                       </td>
-
+{/* 
                       <td className="px-3 py-2">
                         {country ? (
                           <div className="flex items-center gap-2">
@@ -377,7 +377,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                         ) : (
                           <span className="text-gray-400">{prod.country}</span>
                         )}
-                      </td>
+                      </td> */}
 
                       <td className="px-3 py-2 text-center">
                         <div className="relative inline-block">

@@ -7,17 +7,17 @@ export const addOfferProduct = async (req, res) => {
       category_id,
       price,
       offer_price,
-      country,
+      // country,
       unit,
       description,
       image_url,
     } = req.body;
-
+// country,
     await pool.query(
       `INSERT INTO mega_offers
-      (name, category_id, price, offer_price, country, unit, description, image_url)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [name, category_id, price, offer_price, country, unit, description, image_url]
+      (name, category_id, price, offer_price,  unit, description, image_url)
+      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [name, category_id, price, offer_price, unit, description, image_url]
     );
 
     res.json({ message: "Offer product added successfully" });
@@ -27,7 +27,7 @@ export const addOfferProduct = async (req, res) => {
   }
 };
 
-
+//  off.country,
 export const getMegaOffers = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -38,7 +38,7 @@ export const getMegaOffers = async (req, res) => {
         c.name AS category_name,
         off.price,
         off.offer_price,
-        off.country,
+       
         off.unit,
         off.description,
         off.image_url
@@ -63,33 +63,33 @@ export const updateOfferProduct = async (req, res) => {
     category_id,
     price,
     offer_price,
-    country,
+    // country,
     unit,
     description,
     image_url,
   } = req.body;
 
   try {
-
+//  country=$5
     const result = await pool.query(
       `UPDATE mega_offers
        SET name=$1,
            category_id=$2,
            price=$3,
            offer_price=$4,
-           country=$5,
-           unit=$6,
-           description=$7,
-           image_url=$8
-       WHERE id=$9
+          
+           unit=$5,
+           description=$6,
+           image_url=$7
+       WHERE id=$8
        RETURNING *`,
-      [name, category_id, price, offer_price, country, unit, description, image_url, id]
+      [name, category_id, price, offer_price, unit, description, image_url, id]
     );
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Offer product not found" });
     }
-
+ // off.country,
     const updated = await pool.query(`
       SELECT
         off.id,
@@ -98,7 +98,7 @@ export const updateOfferProduct = async (req, res) => {
         c.name AS category_name,
         off.price,
         off.offer_price,
-        off.country,
+       
         off.unit,
         off.description,
         off.image_url

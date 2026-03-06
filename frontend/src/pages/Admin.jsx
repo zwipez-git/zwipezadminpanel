@@ -18,7 +18,7 @@ import Catalog from "../components/Catalog/Catalogs";
 import Signup from "./Signup";
 import AdminsList from "../components/AdminsList";
 import CustomerList from "../components/CustomerList";
-import MegaOffers from "../components/MegaOffers";
+import Offers from "../components/Megaoffers/Offers";
 import Dashboard from "../components/Dashboard";
 import Orders from '../components/Orders'
 
@@ -264,10 +264,21 @@ export default function Admin() {
     setActiveForm={setActiveForm} 
     setActiveView={setActiveView}
   />
+  
+)}
+   {activeView === "megaoffers" && (
+  <Offers
+    activeForm={activeForm}
+  
+  />
+  
 )}
 
+ 
+
+
         {activeView === "orders" && <Orders />}
-        {activeView === "megaoffers" && <MegaOffers activeForm={activeForm} />}
+        {/* {activeView === "megaoffers" && <MegaOffers activeForm={activeForm} />} */}
         {activeView === "customers" && <CustomerList />}
         {activeView === "signup" && isSuperAdmin && <Signup />}
         {activeView === "users" && isSuperAdmin && <AdminsList />}

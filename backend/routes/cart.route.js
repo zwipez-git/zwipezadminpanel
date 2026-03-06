@@ -14,7 +14,7 @@ router.post("/addCart", addToCart);
 router.get("/getCart", getCart);
 
 
-router.delete('/cart/item/:itemId', removeItem);
+router.delete('/cart/remove', removeItem);
 
 
 router.delete("/clear", clearCart);

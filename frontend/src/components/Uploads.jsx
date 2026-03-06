@@ -19,7 +19,7 @@ function Uploads({ activeForm }) {
    const [original_price, setOriginalPrice] = useState("");
 
 
-  const [country, setCountry] = useState("");
+  // const [country, setCountry] = useState("");
   const [unit, setUnit] = useState("");
   const [description, setDescription] = useState("");
   const [productImage, setProductImage] = useState(null);
@@ -115,7 +115,7 @@ const submitProduct = async () => {
     category_id: Number(categoryId),
     original_price: Number(original_price),
     price: Number(price),
-    country,
+    // country,
     unit,
     description,
     image_url: imageUrl,
@@ -130,7 +130,7 @@ const submitProduct = async () => {
     setCategoryId("");
       setOriginalPrice("");
     setPrice("");
-    setCountry("");
+    // setCountry("");
     setUnit("");
     setDescription("");
     setProductImage(null);
@@ -282,13 +282,13 @@ const submitBanner = async () => {
             onChange={(e) => setPrice(e.target.value)}
             className="w-full border p-3 rounded-xl mb-4"
           />
-          <input
+          {/* <input
             type="text"
             placeholder="Country"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
             className="w-full border p-3 rounded-xl mb-4"
-          />
+          /> */}
 
           <input
             type="text"

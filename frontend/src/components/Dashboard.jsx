@@ -150,7 +150,7 @@ const COLORS = ["#ef4444", "#22c55e", "#3b82f6"];
         {/*cards */}
       <div className=" ml-30 grid  grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-15 ">
         {cards.map((c, i) => (
-          <div>
+  <div key={i}>
           <div key={i} className=" p-5 h-50  w-40 rounded-xl shadow-sm  gap-4 bg-green-100 ">
             <c.icon className="text-green-700 text-5xl p-2 ml-8 rounded-3xl flex justify-center bg-green-50 mb-3" />
              <div className=" text-l text-gray-500 flex justify-center mb-3">{c.label}</div>

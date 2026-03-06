@@ -8,18 +8,18 @@ export const addProduct = async (req, res) => {
       category_id,
       original_price,
       price,
-      country,
+      // country,
       unit,
       description,
       image_url,
       is_active = true, 
     } = req.body;
-
+// country,
     const result = await pool.query(
       `
       INSERT INTO products
-      (name, category_id, original_price, price, country, unit, description, image_url, is_active)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      (name, category_id, original_price, price,  unit, description, image_url, is_active)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
       RETURNING *
       `,
       [
@@ -27,7 +27,7 @@ export const addProduct = async (req, res) => {
         category_id,
         original_price,
         price,
-        country,
+        // country,
         unit,
         description,
         image_url,
@@ -45,7 +45,7 @@ export const addProduct = async (req, res) => {
   }
 };
 
-//get products
+//get products  // p.country,
 export const getProducts = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -56,7 +56,7 @@ export const getProducts = async (req, res) => {
         c.name AS category_name,
         p.original_price,
         p.price,
-        p.country,
+        
         p.unit,
         p.description,
         p.image_url,
@@ -75,7 +75,7 @@ export const getProducts = async (req, res) => {
 };
 
 
-// get products by category
+// get products by category     p.country,
 export const getProductsByCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -89,7 +89,7 @@ export const getProductsByCategory = async (req, res) => {
         c.name AS category_name,
         p.original_price,
         p.price,
-        p.country,
+       
         p.unit,
         p.description,
         p.image_url,
@@ -111,7 +111,7 @@ export const getProductsByCategory = async (req, res) => {
   }
 };
 
-//update
+//update   country = $5,
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
 
@@ -120,7 +120,7 @@ export const updateProduct = async (req, res) => {
     category_id,
     original_price,
     price,
-    country,
+    // country,
     unit,
     description,
     image_url,
@@ -136,12 +136,12 @@ export const updateProduct = async (req, res) => {
         category_id = $2,
         original_price = $3,
         price = $4,
-        country = $5,
-        unit = $6,
-        description = $7,
-        image_url = $8,
-        is_active = $9
-      WHERE id = $10
+        
+        unit = $5,
+        description = $6,
+        image_url = $7,
+        is_active = $8
+      WHERE id = $9
       RETURNING *
       `,
       [
@@ -149,7 +149,7 @@ export const updateProduct = async (req, res) => {
         category_id,
         original_price,
         price,
-        country,
+        // country,
         unit,
         description,
         image_url,
