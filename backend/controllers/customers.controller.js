@@ -132,12 +132,14 @@ export const UserProfile = async (req, res) => {
     return res.status(500).json({ status: 0, message: "Profile failed" });
   }
 };
+
 //get users list
-export const getUsersList= async (req, res) => {
+
+export const getUsersList = async (req, res) => {
   try {
     const customerId = req.headers.id;
 
-    
+    // If ID not provided → return all users
     if (!customerId) {
       const result = await pool.query(`
         SELECT
@@ -153,7 +155,7 @@ export const getUsersList= async (req, res) => {
       });
     }
 
-    
+    // If ID provided → return specific user
     const result = await pool.query(
       `
       SELECT
@@ -174,21 +176,30 @@ export const getUsersList= async (req, res) => {
 
     return res.json({
       status: 1,
-      message: "Customer profile fetched successfully",
+      message: "Customer fetched successfully",
       data: formatUser(result.rows[0])
     });
 
   } catch (err) {
-    console.error("getProfile error:", err);
-    res.status(500).json({ status: 0, message: "Failed to fetch profile" });
+    console.error("getUsersList error:", err);
+    res.status(500).json({
+      status: 0,
+      message: "Failed to fetch users"
+    });
   }
 };
-
 //update
 export const updateCustomer = async (req, res) => {
   try {
-    const { phone } = req.params;
+    const customerId = req.headers.id;
     const { name, email, gender, dob, address = {} } = req.body;
+
+    if (!customerId) {
+      return res.status(400).json({
+        status: 0,
+        message: "Customer id required in header"
+      });
+    }
 
     const updates = {
       name,
@@ -206,7 +217,10 @@ export const updateCustomer = async (req, res) => {
     );
 
     if (!Object.keys(updates).length) {
-      return res.status(400).json({ message: "No fields to update" });
+      return res.status(400).json({
+        status: 0,
+        message: "No fields to update"
+      });
     }
 
     const fields = Object.keys(updates);
@@ -219,19 +233,30 @@ export const updateCustomer = async (req, res) => {
     const result = await pool.query(
       `UPDATE customers
        SET ${setQuery}
-       WHERE phone_number = $${fields.length + 1}
+       WHERE id = $${fields.length + 1}
        RETURNING *`,
-      [...values, phone]
+      [...values, customerId]
     );
 
     if (!result.rows.length) {
-      return res.status(404).json({ message: "Customer not found" });
+      return res.status(404).json({
+        status: 0,
+        message: "Customer not found"
+      });
     }
 
-    res.json(formatUser(result.rows[0]));
+    res.json({
+      status: 1,
+      message: "Customer updated successfully",
+      data: formatUser(result.rows[0])
+    });
+
   } catch (err) {
     console.error("updateCustomer error:", err);
-    res.status(500).json({ message: "Failed to update customer" });
+    res.status(500).json({
+      status: 0,
+      message: "Failed to update customer"
+    });
   }
 };
 
