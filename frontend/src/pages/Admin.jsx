@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 
 import {
@@ -8,10 +9,14 @@ import {
   FaSignOutAlt,
   FaCloudUploadAlt,
   FaBullhorn,
+  FaBars,
+  FaTimes
 } from "react-icons/fa";
+
 import { PiUserListFill } from "react-icons/pi";
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
 import { RxDashboard } from "react-icons/rx";
+
 import OtpAuth from "../components/OtpAuth";
 import Upload from "../components/Uploads";
 import Catalog from "../components/Catalog/Catalogs";
@@ -20,7 +25,7 @@ import AdminsList from "../components/AdminsList";
 import CustomerList from "../components/CustomerList";
 import Offers from "../components/Megaoffers/Offers";
 import Dashboard from "../components/Dashboard";
-import Orders from '../components/Orders'
+import Orders from "../components/Orders";
 
 function SidebarItem({ icon: Icon, label, active, onClick }) {
   return (
@@ -40,6 +45,7 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 }
 
 export default function Admin() {
+
   const user = JSON.parse(localStorage.getItem("user")) || {
     name: "Guest",
     role: "Admin",
@@ -56,30 +62,57 @@ export default function Admin() {
   const [activeForm, setActiveForm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleNavigation = (view, form = "") => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleNavigation = (view, form = null) => {
     setLoading(true);
     setTimeout(() => {
       setActiveView(view);
       setActiveForm(form);
+      setSidebarOpen(false);
       setLoading(false);
     }, 500);
   };
 
   return (
     <div className="flex min-h-screen bg-[#F8FFFA] relative">
+
       {loading && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="w-16 h-16 border-4 border-green-200 border-t-green-700 rounded-full animate-spin"></div>
         </div>
       )}
 
-      <aside className="w-72 bg-green-700 text-white p-5 flex flex-col justify-between">
+     {/* mobile view */}
+      <div className="lg:hidden fixed top-0 left-0  right-0 bg-green-700 text-white flex items-center justify-between p-4 z-50">
+        <button onClick={() => setSidebarOpen(true)}>
+          <FaBars size={22} />
+        </button>
+
+        <h1 className="font-semibold">Admin Dashboard</h1>
+      </div>
+
+      {/* SIDEBAR */}
+      <aside
+        className={`fixed lg:static top-0 min-h-screen left-0 h-auto w-72 bg-green-700 text-white p-5 flex flex-col justify-between transform transition-transform duration-300 z-50
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      >
+  
+        <div className="flex justify-end lg:hidden mb-2">
+          <FaTimes
+            className="cursor-pointer"
+            size={22}
+            onClick={() => setSidebarOpen(false)}
+          />
+        </div>
+
         <div>
           <h1 className="text-xl bg-white text-green-700 py-3 rounded-xl flex justify-center gap-2 mb-6">
             <FaTachometerAlt /> Admin Dashboard
           </h1>
 
           <ul className="space-y-2">
+
             <SidebarItem
               icon={FaTachometerAlt}
               label="Dashboard"
@@ -95,6 +128,7 @@ export default function Admin() {
                   active={activeView === "signup"}
                   onClick={() => handleNavigation("signup")}
                 />
+
                 <SidebarItem
                   icon={PiUserListFill}
                   label="List of Admins"
@@ -110,6 +144,8 @@ export default function Admin() {
               active={activeView === "orders"}
               onClick={() => handleNavigation("orders")}
             />
+
+            {/* Mega Offers */}
 
             <li>
               <div
@@ -130,6 +166,7 @@ export default function Admin() {
                   >
                     Upload Mega Offer
                   </li>
+
                   <li
                     onClick={() =>
                       handleNavigation("megaoffers", "megaoffer_list")
@@ -156,6 +193,8 @@ export default function Admin() {
               onClick={() => handleNavigation("otp")}
             />
 
+            {/* PRODUCTS */}
+
             <li>
               <div
                 onClick={() => setCatalogOpen(!catalogOpen)}
@@ -169,33 +208,33 @@ export default function Admin() {
 
               {catalogOpen && (
                 <ul className="ml-8 mt-2 space-y-2 text-sm">
+
                   <li
-                    onClick={() =>
-                      handleNavigation("catalog", "category_list")
-                    }
+                    onClick={() => handleNavigation("catalog", "category_list")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Category List
                   </li>
+
                   <li
-                    onClick={() =>
-                      handleNavigation("catalog", "product_list")
-                    }
+                    onClick={() => handleNavigation("catalog", "product_list")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Product List
                   </li>
+
                   <li
-                    onClick={() =>
-                      handleNavigation("catalog", "banner_list")
-                    }
+                    onClick={() => handleNavigation("catalog", "banner_list")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Banner List
                   </li>
+
                 </ul>
               )}
             </li>
+
+            {/* UPLOAD */}
 
             <li>
               <div
@@ -210,31 +249,36 @@ export default function Admin() {
 
               {uploadOpen && (
                 <ul className="ml-8 mt-2 space-y-2 text-sm">
+
                   <li
                     onClick={() => handleNavigation("upload", "category")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Upload Category
                   </li>
+
                   <li
                     onClick={() => handleNavigation("upload", "product")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Upload Product
                   </li>
+
                   <li
-                    onClick={() =>
-                      handleNavigation("upload", "bannerimages")
-                    }
+                    onClick={() => handleNavigation("upload", "bannerimages")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Banner Images
                   </li>
+
                 </ul>
               )}
             </li>
+
           </ul>
         </div>
+
+        {/* USER FOOTER */}
 
         <div>
           <div className="bg-white text-green-700 p-3 rounded-md">
@@ -252,37 +296,42 @@ export default function Admin() {
             <FaSignOutAlt /> Logout
           </button>
         </div>
+
       </aside>
 
-      <main className="flex-1 p-8">
-        {activeView === "dashboard" && <Dashboard />}
+      {/* MAIN CONTENT */}
+
+      <main className="flex-1 p-8 lg:ml-0 mt-16 lg:mt-0">
+
+        {activeView === "dashboard" && (
+          <Dashboard setActiveView={setActiveView} setActiveForm={setActiveForm} />
+        )}
+
         {activeView === "otp" && <OtpAuth />}
+
         {activeView === "upload" && <Upload activeForm={activeForm} />}
-       {activeView === "catalog" && (
-  <Catalog
-    activeForm={activeForm}
-    setActiveForm={setActiveForm} 
-    setActiveView={setActiveView}
-  />
-  
-)}
-   {activeView === "megaoffers" && (
-  <Offers
-    activeForm={activeForm}
-  
-  />
-  
-)}
 
- 
+        {activeView === "catalog" && (
+          <Catalog
+            activeForm={activeForm}
+            setActiveForm={setActiveForm}
+            setActiveView={setActiveView}
+          />
+        )}
 
+        {activeView === "megaoffers" && <Offers activeForm={activeForm} />}
 
         {activeView === "orders" && <Orders />}
-        {/* {activeView === "megaoffers" && <MegaOffers activeForm={activeForm} />} */}
+
         {activeView === "customers" && <CustomerList />}
+
         {activeView === "signup" && isSuperAdmin && <Signup />}
+
         {activeView === "users" && isSuperAdmin && <AdminsList />}
+
       </main>
+
     </div>
   );
 }
+

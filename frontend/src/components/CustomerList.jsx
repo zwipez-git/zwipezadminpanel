@@ -7,6 +7,7 @@ function CustomerList() {
   const [customerList, setCustomerList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingPhone, setEditingPhone] = useState(null);
+  const[updatingCustomer,setUpdatingCustomer]=useState(false)
 
   const [form, setForm] = useState({
     name: "",
@@ -61,6 +62,7 @@ useEffect(() => {
 
 
   const handleUpdate = async (phone) => {
+    setUpdatingCustomer(true)
     try {
       const res = await fetch(`${API_BASE_URL}/user/profile/${phone}`, {
         method: "PUT",
@@ -184,7 +186,7 @@ useEffect(() => {
                   <td key={field} className=" px-3 py-2">
                     {editingPhone === customer.phone ? (
                       <input
-                        className="px-2 py-1 rounded w-full"
+                        className="px-2 py-1 border rounded w-full"
                         value={form[field]}
                         onChange={(e) =>
                           setForm({ ...form, [field]: e.target.value })
@@ -198,10 +200,10 @@ useEffect(() => {
 
                 <td className=" px-3 py-2">{customer.phone}</td>
 
-                <td className=" px-3 py-2">
+                <td className=" px-3 w-28 py-2">
                   {editingPhone === customer.phone ? (
                     <select
-                      className=" px-2 py-1 rounded w-full"
+                      className=" px-2 py-1 border rounded w-full"
                       value={form.gender}
                       onChange={(e) =>
                         setForm({ ...form, gender: e.target.value })
@@ -221,7 +223,7 @@ useEffect(() => {
                   {editingPhone === customer.phone ? (
                     <input
                       type="date"
-                      className=" px-2 py-1 rounded w-full"
+                      className=" px-2 py-1  border rounded w-full"
                       value={form.dob}
                       onChange={(e) =>
                         setForm({ ...form, dob: e.target.value })
@@ -236,7 +238,7 @@ useEffect(() => {
                   <td key={f} className=" px-3 py-2">
                     {editingPhone === customer.phone ? (
                       <input
-                        className=" px-2 py-1 rounded w-full"
+                        className=" px-2 py-1 border rounded w-full"
                         value={form[f]}
                         onChange={(e) =>
                           setForm({ ...form, [f]: e.target.value })
@@ -259,7 +261,7 @@ useEffect(() => {
                         onClick={() => handleUpdate(customer.phone)}
                         className="bg-green-600 text-white px-3 py-1 rounded"
                       >
-                        Save
+                     {updatingCustomer ? "Saving..." : "Save"}
                       </button>
                     ) : (
                       <button

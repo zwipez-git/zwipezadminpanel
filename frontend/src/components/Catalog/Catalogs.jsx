@@ -10,6 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 function Catalogs({ activeForm, setActiveForm, setActiveView}) {
   const [categories, setCategories] = useState([]);
 
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/get-categories`)
       .then(res => res.json())

@@ -9,6 +9,7 @@ function BannerList() {
   const [editingBannerId, setEditingBannerId] = useState(null);
   const [bannerForm, setBannerForm] = useState({ title: "", image_url: "" });
    const [bannerImageFile, setBannerImageFile] = useState(null);
+   const [updatingBanner,setUpdatingBanner]=useState(false)
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/get-banners`)
@@ -25,6 +26,7 @@ function BannerList() {
   };
   
   const handleUpdateBanner = async (id) => {
+    setUpdatingBanner(true);
     let imageUrl = bannerForm.image_url;
   
     if (bannerImageFile) {
@@ -102,7 +104,7 @@ function BannerList() {
               <td className="px-4 py-2">
                 {editingBannerId === banner.id ? (
                   <input
-                    className=" px-2 py-1 rounded w-full"
+                    className=" px-2 py-1 border rounded w-auto"
                     value={bannerForm.title}
                     onChange={(e) =>
                       setBannerForm({ ...bannerForm, title: e.target.value })
@@ -148,7 +150,7 @@ function BannerList() {
                       onClick={() => handleUpdateBanner(banner.id)}
                       className="bg-green-600 text-white px-3 py-1 rounded"
                     >
-                      Save
+                      {updatingBanner ? "Saving..." : "Save"}
                     </button>
                   ) : (
                     <button

@@ -19,7 +19,7 @@ function CategoryList() {
   const [categoryForm, setCategoryForm] = useState({ name: "", image_url: "" });
   
   const [categoryImageFile, setCategoryImageFile] = useState(null);
-
+const[updatingCategory,setUpdatingCategory]=useState(false)
 
 
 
@@ -58,6 +58,7 @@ function CategoryList() {
 
   // UPDATE
   const handleUpdateCategory = async (id) => {
+    setUpdatingCategory(true);
     let imageUrl = categoryForm.image_url;
 
     if (categoryImageFile) {
@@ -149,7 +150,7 @@ function CategoryList() {
                       <td className="px-4 py-3">
                         {editingCategoryId === cat.id ? (
                           <input
-                            className=" px-2 py-1 rounded w-full"
+                            className=" px-2 py-1 border rounded w-auto"
                             value={categoryForm.name}
                             onChange={(e) =>
                               setCategoryForm({
@@ -201,7 +202,7 @@ function CategoryList() {
                               onClick={() => handleUpdateCategory(cat.id)}
                               className="bg-green-600 text-white px-3 py-1 rounded"
                             >
-                              Save
+                               {updatingCategory ? "Saving..." : "Save"}
                             </button>
                           ) : (
                             <button

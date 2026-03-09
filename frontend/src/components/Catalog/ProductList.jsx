@@ -270,7 +270,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                     <tr key={prod.id}>
                       <td className="px-3 py-2 text-center">
                         {editingProductId === prod.id ? (
-                          <div className="flex flex-col items-center gap-2">
+                          <div className="flex flex-col  items-center gap-2">
                             <img
                               src={productForm.image_url}
                               className="w-12 h-12 rounded"
@@ -286,7 +286,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                         ) : (
                           <img
                             src={prod.image_url}
-                            className="w-12 h-12 mx-auto rounded"
+                            className="w-12 h-12  mx-auto rounded"
                           />
                         )}
                       </td>
@@ -294,6 +294,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                       <td className="px-3 py-2">
                         {editingProductId === prod.id ? (
                           <input
+                          
                             value={productForm.name}
                             onChange={(e) =>
                               setProductForm({
@@ -301,7 +302,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                                 name: e.target.value,
                               })
                             }
-                            className="px-2 py-1 rounded w-full"
+                            className="px-2 py-1 border rounded w-auto"
                           />
                         ) : (
                           prod.name
@@ -323,7 +324,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                                 original_price: e.target.value,
                               })
                             }
-                            className="px-2 py-1 rounded w-full"
+                            className="px-2 py-1 border rounded w-full"
                           />
                         ) : (
                           prod.original_price
@@ -341,7 +342,7 @@ function ProductList({ setActiveForm, setActiveView }) {
                                 price: e.target.value,
                               })
                             }
-                            className="px-2 py-1 rounded w-full"
+                            className="px-2 py-1 border rounded w-full"
                           />
                         ) : (
                           prod.price
@@ -358,8 +359,8 @@ function ProductList({ setActiveForm, setActiveView }) {
                                 unit: e.target.value,
                               })
                             }
-                            className="px-2 py-1 rounded w-full"
-                          />
+                            className="px-2 py-1 border rounded w-full"
+                          /> 
                         ) : (
                           prod.unit
                         )}

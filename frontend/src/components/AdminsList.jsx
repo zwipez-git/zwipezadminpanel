@@ -66,7 +66,7 @@ export default function AdminsList() {
                                                         <img src={Search_bar} alt="" className=" ml-[12cm]" />
                                                        <p className="text-center  text-gray-500 text-5xl -mt-30">
                                        
-                                                    No customers yet — customer list will appear here
+                                                    No admins yet — admins list will appear here
                                                        </p> 
                                                      </div>
                           

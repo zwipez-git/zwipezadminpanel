@@ -11,6 +11,7 @@ function MegaOfferList({ activeForm }) {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [editImageFile, setEditImageFile] = useState(null);
+  const[updatingMegaOffers,setUpdatingMegaOffers]=useState(false)
 
   useEffect(() => {
     if (activeForm === "megaoffer_list") {
@@ -28,6 +29,7 @@ function MegaOfferList({ activeForm }) {
   };
 
   const handleUpdateOffer = async (id) => {
+    setUpdatingMegaOffers(true);
 
     let imageUrl = editForm.image_url;
 
@@ -128,10 +130,9 @@ function MegaOfferList({ activeForm }) {
 
                   <tr key={offer.id}>
 
-                    {/* ID */}
                     <td className="px-3 py-2">{index + 1}</td>
 
-                    {/* Image */}
+               
                     <td className="px-3 py-2 text-center">
 
                       {editingId === offer.id ? (
@@ -163,7 +164,7 @@ function MegaOfferList({ activeForm }) {
 
                     </td>
 
-                    {/* Name */}
+                  
                     <td className="px-3 py-2">
 
                       {editingId === offer.id ? (
@@ -176,7 +177,7 @@ function MegaOfferList({ activeForm }) {
                               name: e.target.value,
                             })
                           }
-                          className="border px-2 py-1 rounded w-full"
+                          className="border px-2 py-1 rounded w-auto"
                         />
 
                       ) : (
@@ -185,12 +186,12 @@ function MegaOfferList({ activeForm }) {
 
                     </td>
 
-                    {/* Category */}
+                  
                     <td className="px-3 py-2">
                       {offer.category_name}
                     </td>
 
-                    {/* Price */}
+                  
                     <td className="px-3 py-2">
 
                       {editingId === offer.id ? (
@@ -204,7 +205,7 @@ function MegaOfferList({ activeForm }) {
                               offer_price: e.target.value,
                             })
                           }
-                          className="border px-2 py-1 rounded w-full"
+                          className="border px-2 py-1 rounded w-auto"
                         />
 
                       ) : (
@@ -222,7 +223,7 @@ function MegaOfferList({ activeForm }) {
 
                     </td>
 
-                    {/* Actions */}
+                 
                     <td className="px-3 py-2 text-center">
 
                       <div className="flex gap-4 justify-center">
@@ -233,7 +234,7 @@ function MegaOfferList({ activeForm }) {
                             onClick={() => handleUpdateOffer(offer.id)}
                             className="bg-green-600 text-white px-3 py-1 rounded"
                           >
-                            Save
+                            {updatingMegaOffers ?"Saving...":"Save"}
                           </button>
 
                         ) : (
