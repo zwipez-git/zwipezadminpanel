@@ -3,13 +3,13 @@ import dotenv from 'dotenv';
 types.setTypeParser(1082, val => val);
 
 dotenv.config();
-//  const isProduction = process.env.NODE_ENV === "production";
+ const isProduction = process.env.NODE_ENV === "production";
 
 
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL  
-  // , ssl: isProduction ? { rejectUnauthorized: false } : { rejectUnauthorized: false }
+  , ssl: isProduction ? { rejectUnauthorized: false } : { rejectUnauthorized: false }
 });
 
 async function connectDB() {
