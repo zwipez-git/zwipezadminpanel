@@ -30,7 +30,7 @@ export const addToCart = async (req, res) => {
 
     // Check product exists
     const productRes = await pool.query(
-      `SELECT id, category_id, price, unit, country
+      `SELECT id, category_id, price, unit
        FROM products
        WHERE id = $1`,
       [productId]
@@ -90,14 +90,14 @@ export const addToCart = async (req, res) => {
     } else {
       await pool.query(
         `INSERT INTO cart_items
-         (cart_id, product_id, category_id, unit, country, price, quantity, total)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+         (cart_id, product_id, category_id, unit, price, quantity, total)
+         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
         [
           cartId,
           product.id,
           product.category_id,
           product.unit,
-          product.country,
+          // product.country,
           product.price,
           quantity,
           quantity * product.price
@@ -154,7 +154,7 @@ export const getCart = async (req, res) => {
     }
 
     const cartId = cartRes.rows[0].id;
-
+//  ci.country,
     const itemsRes = await pool.query(
       `SELECT
         ci.id AS cart_item_id,
@@ -164,7 +164,7 @@ export const getCart = async (req, res) => {
         c.id AS category_id,
         c.name AS category_name,
         ci.unit,
-        ci.country,
+       
         ci.price,
         ci.quantity,
         ci.total
