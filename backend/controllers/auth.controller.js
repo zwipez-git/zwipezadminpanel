@@ -30,7 +30,12 @@ const refreshTokenExpiryDate = () =>
 export const authMiddleware = (required = true) => {
   return (req, res, next) => {
     const authHeader = req.headers.authorization;
+<<<<<<< HEAD
      console.log("JWT_SECRET:", process.env.JWT_SECRET); 
+=======
+    
+  // console.log("JWT_SECRET:", process.env.JWT_SECRET);
+>>>>>>> 757b3ef2719a964a938c8a9877122e8f09625ca5
 
     if (!authHeader) {
       if (required) return res.status(401).json({ message: "No token provided" });
