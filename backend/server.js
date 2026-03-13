@@ -15,6 +15,7 @@ import BannerImagesRoutes from './routes/banner.route.js'
 import homeRoutes from './routes/home.route.js'
 import cartRoutes from './routes/cart.route.js'
 import DashboardRoutes from './routes/dashboad.route.js'
+import CouponRoutes from './routes/coupon.route.js'
 dotenv.config();
 
 const app = express();
@@ -59,6 +60,8 @@ app.use("/api", megaofferRoutes);
 app.use("/api",cartRoutes );
 app.use("/user", customerRoutes);
 app.use("/api",DashboardRoutes)
+app.use("/api",CouponRoutes)
+
 
 const PORT = process.env.PORT || 5000;
 

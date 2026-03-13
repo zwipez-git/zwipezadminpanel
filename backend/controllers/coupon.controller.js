@@ -1,0 +1,121 @@
+import pool from '../db/db.js'
+
+
+
+
+// ADD COUPON
+export const addCoupon = async (req, res) => {
+
+  try {
+
+    const { code, type, value, min_order, max_discount, starts_at,expires_at } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO coupons
+      (code,type,value,min_order,max_discount,starts_at,expires_at)
+      VALUES($1,$2,$3,$4,$5,$6,$7)
+      RETURNING *`,
+      [code, type, value, min_order, max_discount,starts_at,expires_at]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    res.status(500).json({ message: "Add coupon failed" });
+  }
+
+};
+
+
+
+// GET COUPONS
+export const getCoupons = async (req, res) => {
+
+  try {
+
+    const result = await pool.query(
+      `SELECT * FROM coupons WHERE is_active=true`
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    res.status(500).json({ message: "Fetch coupons failed" });
+  }
+
+};
+
+
+
+
+// APPLY COUPON
+export const applyCoupon = async (req, res) => {
+
+  try {
+
+    const customerId = req.headers.id;
+    const { couponCode, cartTotal } = req.body;
+
+    const couponResult = await pool.query(
+      `SELECT * FROM coupons
+       WHERE code=$1
+       AND is_active=true
+       AND (expires_at IS NULL OR expires_at > NOW())`,
+      [couponCode]
+    );
+
+    if (!couponResult.rows.length) {
+      return res.status(400).json({ message: "Invalid coupon" });
+    }
+
+    const coupon = couponResult.rows[0];
+
+  
+    const used = await pool.query(
+      `SELECT * FROM coupon_usage
+       WHERE customer_id=$1 AND coupon_id=$2`,
+      [customerId, coupon.id]
+    );
+
+    if (used.rows.length) {
+      return res.status(400).json({ message: "Coupon already used" });
+    }
+
+    if (cartTotal < coupon.min_order) {
+      return res.status(400).json({ message: "Minimum order not reached" });
+    }
+
+    let discount = 0;
+
+    if (coupon.type === "percent") {
+      discount = cartTotal * (coupon.value / 100);
+
+      if (coupon.max_discount) {
+        discount = Math.min(discount, coupon.max_discount);
+      }
+    }
+
+    if (coupon.type === "flat") {
+      discount = coupon.value;
+    }
+
+    const finalTotal = cartTotal - discount;
+
+  
+    await pool.query(
+      `INSERT INTO coupon_usage(customer_id,coupon_id)
+       VALUES($1,$2)`,
+      [customerId, coupon.id]
+    );
+
+    res.json({
+      cartTotal,
+      discount,
+      finalTotal
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Coupon apply failed" });
+  }
+
+};

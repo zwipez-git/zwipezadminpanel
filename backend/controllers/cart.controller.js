@@ -210,7 +210,7 @@ export const removeItem = async (req, res) => {
   const accessToken = req.headers.accesstoken;
   const id = req.headers.id;
 
-  const { cart_item_id } = req.body;
+  const { cart_item_id ,quantity} = req.body;
 
   if (!accessToken || !id) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -302,6 +302,177 @@ export const clearCart = async (req, res) => {
     }
 
     console.error("Clear cart error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+//reduce 1 item
+
+export const decreaseItemQuantity = async (req, res) => {
+
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
+
+  const { cart_item_id } = req.body;
+
+  if (!accessToken || !id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (!cart_item_id) {
+    return res.status(400).json({ message: "Cart Item Id required" });
+  }
+
+  try {
+
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
+
+    if (decoded.customerId != id) {
+      return res.status(401).json({ message: "Customer ID mismatch" });
+    }
+
+    const cartRes = await pool.query(
+      `SELECT id FROM carts
+       WHERE customer_id = $1 AND status = 'ACTIVE'`,
+      [id]
+    );
+
+    if (!cartRes.rows.length) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const cartId = cartRes.rows[0].id;
+
+    // get quantity and price
+    const itemRes = await pool.query(
+      `SELECT quantity, price FROM cart_items
+       WHERE id = $1 AND cart_id = $2`,
+      [cart_item_id, cartId]
+    );
+
+    if (!itemRes.rows.length) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    const currentQty = itemRes.rows[0].quantity;
+    const price = itemRes.rows[0].price;
+
+  
+    if (currentQty === 1) {
+
+      await pool.query(
+        `DELETE FROM cart_items
+         WHERE id = $1 AND cart_id = $2`,
+        [cart_item_id, cartId]
+      );
+
+      return res.json({ message: "Item removed from cart" });
+    }
+
+    // decrease quantity
+    const newQty = currentQty - 1;
+    const newTotal = newQty * price;
+
+    await pool.query(
+      `UPDATE cart_items
+       SET quantity = $1, total = $2
+       WHERE id = $3 AND cart_id = $4`,
+      [newQty, newTotal, cart_item_id, cartId]
+    );
+
+    res.json({
+      message: "Quantity decreased",
+      quantity: newQty,
+      total: newTotal
+    });
+
+  } catch (err) {
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Access token expired" });
+    }
+
+    console.error("Decrease item error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+//increase
+export const increaseItemQuantity = async (req, res) => {
+
+  const accessToken = req.headers.accesstoken;
+  const id = req.headers.id;
+
+  const { cart_item_id } = req.body;
+
+  if (!accessToken || !id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (!cart_item_id) {
+    return res.status(400).json({ message: "Cart Item Id required" });
+  }
+
+  try {
+
+    const decoded = jwt.verify(accessToken, JWT_SECRET);
+
+    if (decoded.customerId != id) {
+      return res.status(401).json({ message: "Customer ID mismatch" });
+    }
+
+    const cartRes = await pool.query(
+      `SELECT id FROM carts
+       WHERE customer_id = $1 AND status = 'ACTIVE'`,
+      [id]
+    );
+
+    if (!cartRes.rows.length) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const cartId = cartRes.rows[0].id;
+
+    // get current quantity and price
+    const itemRes = await pool.query(
+      `SELECT quantity, price FROM cart_items
+       WHERE id = $1 AND cart_id = $2`,
+      [cart_item_id, cartId]
+    );
+
+    if (!itemRes.rows.length) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    const currentQty = itemRes.rows[0].quantity;
+    const price = itemRes.rows[0].price;
+
+    const newQty = currentQty + 1;
+    const newTotal = newQty * price;
+
+    await pool.query(
+      `UPDATE cart_items
+       SET quantity = $1, total = $2
+       WHERE id = $3 AND cart_id = $4`,
+      [newQty, newTotal, cart_item_id, cartId]
+    );
+
+    res.json({
+      message: "Quantity increased",
+      quantity: newQty,
+      total: newTotal
+    });
+
+  } catch (err) {
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Access token expired" });
+    }
+
+    console.error("Increase item error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

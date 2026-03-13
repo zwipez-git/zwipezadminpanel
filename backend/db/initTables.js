@@ -145,7 +145,7 @@ await pool.query(`
 
 
   price NUMERIC(10,2),
-  quantity NUMERIC(10,2),
+  quantity INTEGER,
   total NUMERIC(10,2),
 
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -153,6 +153,36 @@ await pool.query(`
   UNIQUE(cart_id, product_id)
 );
 `)
+
+//coupons tables 
+
+
+await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(50) UNIQUE NOT NULL,
+  type VARCHAR(20) NOT NULL,
+  value NUMERIC NOT NULL,
+  min_order NUMERIC DEFAULT 0,
+  max_discount NUMERIC,
+  is_new_user BOOLEAN DEFAULT false,
+  starts_at TIMESTAMP,
+  expires_at TIMESTAMP,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+  `)
+
+  // coupon usage table
+  await pool.query(`
+    
+  CREATE TABLE IF NOT EXISTS coupon_usage (
+  id SERIAL PRIMARY KEY,
+  customer_id INT,
+  coupon_id INT,
+  used_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(customer_id, coupon_id)
+);
+    `)
     console.log(" All tables created ");
   } catch (error) {
     console.error("Table creation failed:", error.message);
