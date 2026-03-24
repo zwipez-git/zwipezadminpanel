@@ -178,16 +178,18 @@ export const getCart = async (req, res) => {
     const totalAmount = itemsRes.rows.reduce(
       (sum, item) => sum + Number(item.total),0
     );
-const tax = Math.round(totalAmount * 0.18 * 100) / 100;
-    const Totalwithtax=totalAmount+tax;
-   const deliveryCharge = totalAmount === 0 ? 0 : (totalAmount >= 400 ? 0 : 40);
+  const tax = Math.round(totalAmount * 0.18 * 100) / 100;
+    const deliveryCharge = totalAmount === 0 ? 0 : (totalAmount >= 400 ? 0 : 40);
+
+  
+
 
     res.json({
       id,
       items: itemsRes.rows,
       totalAmount,
       tax,
-      Totalwithtax,
+      
       deliveryCharge
 
 

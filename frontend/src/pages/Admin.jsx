@@ -15,7 +15,8 @@ import {
 
 import { PiUserListFill } from "react-icons/pi";
 import { RiArrowDropDownLine, RiArrowDropUpLine } from "react-icons/ri";
-import { RxDashboard } from "react-icons/rx";
+
+import {BiSolidDashboard, BiSolidCoupon } from "react-icons/bi";
 
 import OtpAuth from "../components/OtpAuth";
 import Upload from "../components/Uploads";
@@ -26,6 +27,7 @@ import CustomerList from "../components/CustomerList";
 import Offers from "../components/Megaoffers/Offers";
 import Dashboard from "../components/Dashboard";
 import Orders from "../components/Orders";
+import Coupons from '../components/Coupons/Coupons';
 
 function SidebarItem({ icon: Icon, label, active, onClick }) {
   return (
@@ -59,10 +61,13 @@ export default function Admin() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [megaOfferOpen, setMegaOfferOpen] = useState(false);
+
   const [activeForm, setActiveForm] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [couponsOpen, setCouponsOpen] = useState(false);
+
 
   const handleNavigation = (view, form = null) => {
     setLoading(true);
@@ -139,7 +144,7 @@ export default function Admin() {
             )}
 
             <SidebarItem
-              icon={RxDashboard}
+              icon={BiSolidDashboard}
               label="Orders"
               active={activeView === "orders"}
               onClick={() => handleNavigation("orders")}
@@ -161,7 +166,7 @@ export default function Admin() {
               {megaOfferOpen && (
                 <ul className="ml-8 mt-2 space-y-2 text-sm">
                   <li
-                    onClick={() => handleNavigation("megaoffers", "megaoffer")}
+                    onClick={() => handleNavigation("megaoffers", "uploadmegaoffer")}
                     className="cursor-pointer hover:text-green-300"
                   >
                     Upload Mega Offer
@@ -275,6 +280,39 @@ export default function Admin() {
               )}
             </li>
 
+
+             <li>
+              <div
+                onClick={() => setCouponsOpen(!couponsOpen)}
+                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-white hover:text-green-700 rounded-lg"
+              >
+                <BiSolidCoupon /> Coupons
+                <span className="ml-auto">
+                  {couponsOpen ? <RiArrowDropUpLine /> : <RiArrowDropDownLine />}
+                </span>
+              </div>
+
+              {couponsOpen && (
+                <ul className="ml-8 mt-2 space-y-2 text-sm">
+                  <li
+                    onClick={() => handleNavigation("coupons", "uploadcoupons")}
+                    className="cursor-pointer hover:text-green-300"
+                  >
+                    Upload Coupons
+                  </li>
+
+                  <li
+                    onClick={() =>
+                      handleNavigation("coupons", "coupons_list")
+                    }
+                    className="cursor-pointer hover:text-green-300"
+                  >
+                   Coupons List
+                  </li>
+                </ul>
+              )}
+            </li>
+
           </ul>
         </div>
 
@@ -320,6 +358,7 @@ export default function Admin() {
         )}
 
         {activeView === "megaoffers" && <Offers activeForm={activeForm} />}
+         {activeView === "coupons" && <Coupons activeForm={activeForm} />}
 
         {activeView === "orders" && <Orders />}
 

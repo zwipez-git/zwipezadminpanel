@@ -2,7 +2,8 @@ import express from "express";
 import {
  addCoupon,
  getCoupons,
- applyCoupon 
+ applyCoupon ,
+
 
 } from "../controllers/coupon.controller.js";
 
@@ -14,8 +15,7 @@ router.post("/addCoupon", addCoupon);
 
 router.get("/getCoupons", getCoupons);
 
-
-// router.put("/edit", editCoupon);
+//  router.put("/update", updateCoupon);
 
 
 // router.delete("/delete", deleteCoupon);

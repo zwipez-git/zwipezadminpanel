@@ -183,6 +183,47 @@ await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
   UNIQUE(customer_id, coupon_id)
 );
     `)
+
+
+//orders
+
+await pool.query(`
+  
+  CREATE TABLE IF NOT EXISTS  orders (
+  id SERIAL PRIMARY KEY,
+  order_number VARCHAR(20),
+  customer_id INT NOT NULL,
+  total_amount NUMERIC(10,2) NOT NULL,
+  tax NUMERIC(10,2) DEFAULT 0,
+  delivery_charge NUMERIC(10,2) DEFAULT 0,
+  grand_total NUMERIC(10,2) NOT NULL,
+  address TEXT NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
+  status VARCHAR(20) DEFAULT 'confirmed',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+  
+  
+  
+  `)
+
+//order items
+
+await pool.query(`
+  
+  
+  
+  CREATE TABLE  IF NOT EXISTS order_items (
+  id SERIAL PRIMARY KEY,
+  order_id INT REFERENCES orders(id) ON DELETE CASCADE,
+  product_id INT,
+ tax NUMERIC(10,2) DEFAULT 0,
+  delivery_charge NUMERIC(10,2) DEFAULT 0,
+  quantity INT,
+  price NUMERIC(10,2),
+  total NUMERIC(10,2)
+);`)
+
     console.log(" All tables created ");
   } catch (error) {
     console.error("Table creation failed:", error.message);

@@ -142,7 +142,7 @@ return (
 
 <div className="flex-1 p-10 flex justify-center items-center">
 
-{activeForm === "megaoffer" && (
+{activeForm === "uploadmegaoffer" && (
 
 <div className="w-150 bg-white border-2 border-green-700 rounded-xl p-8">
 

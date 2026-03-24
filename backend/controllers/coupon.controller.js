@@ -6,26 +6,49 @@ import pool from '../db/db.js'
 // ADD COUPON
 export const addCoupon = async (req, res) => {
 
-  try {
+try {
 
-    const { code, type, value, min_order, max_discount, starts_at,expires_at } = req.body;
+const {
+code,
+type,
+value,
+min_order,
+max_discount,
+starts_at,
+expires_at,
+is_new_user
+} = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO coupons
-      (code,type,value,min_order,max_discount,starts_at,expires_at)
-      VALUES($1,$2,$3,$4,$5,$6,$7)
-      RETURNING *`,
-      [code, type, value, min_order, max_discount,starts_at,expires_at]
-    );
+const result = await pool.query(
+`INSERT INTO coupons
+(code,type,value,min_order,max_discount,starts_at,expires_at,is_new_user)
+VALUES($1,$2,$3,$4,$5,$6,$7,$8)
+RETURNING *`,
+[
+code,
+type,
+value,
+min_order || 0,
+max_discount || null,
+starts_at || null,
+expires_at || null,
+is_new_user || false
+]
+);
 
-    res.json(result.rows[0]);
+res.json({
+message:"Coupon added",
+coupon: result.rows[0]
+});
 
-  } catch (err) {
-    res.status(500).json({ message: "Add coupon failed" });
-  }
+} catch(err) {
+
+console.error(err);
+res.status(500).json({message:"Failed to add coupon"});
+
+}
 
 };
-
 
 
 // GET COUPONS
@@ -119,3 +142,7 @@ export const applyCoupon = async (req, res) => {
   }
 
 };
+
+
+
+
