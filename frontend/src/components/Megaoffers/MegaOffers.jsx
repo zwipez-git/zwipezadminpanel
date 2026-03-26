@@ -297,3 +297,4 @@ Price:₹{prod.price}
 }
 
 export default MegaOffers;
+

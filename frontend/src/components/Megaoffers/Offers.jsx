@@ -7,7 +7,7 @@ function Offers({ activeForm }) {
   return (
     <div>
 
-      {activeForm === "megaoffer" && (
+      {activeForm === "uploadmegaoffer" && (
         <MegaOffers activeForm={activeForm} />
       )}
 
