@@ -241,7 +241,7 @@ className="w-full bg-green-700 text-white p-3 rounded-xl disabled:opacity-50"
 
 <div className="fixed top-0 right-0 h-screen w-90 shadow-3xl z-50 m-4 rounded-[5px] overflow-y-auto custom-scroll">
 
-{activeForm === "megaoffer" && products.length > 0 && (
+{activeForm === "uploadmegaoffer" && products.length > 0 && (
 
 <div className="p-6 space-y-4">
 
@@ -297,4 +297,3 @@ Price:₹{prod.price}
 }
 
 export default MegaOffers;
-
