@@ -17,6 +17,7 @@ import cartRoutes from './routes/cart.route.js'
 import DashboardRoutes from './routes/dashboad.route.js'
 import CouponRoutes from './routes/coupon.route.js'
 import OrderRoutes from './routes/order.route.js'
+import agentsRoutes from './routes/agents.route.js'
 dotenv.config();
 
 const app = express();
@@ -63,6 +64,7 @@ app.use("/user", customerRoutes);
 app.use("/api",DashboardRoutes)
 app.use("/api",CouponRoutes)
 app.use("/api",OrderRoutes)
+app.use("/api",agentsRoutes)
 
 const PORT = process.env.PORT || 5000;
 

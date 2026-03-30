@@ -155,8 +155,8 @@ export const placeOrder = async (req, res) => {
       
       const orderRes = await client.query(
         `INSERT INTO orders
-        (customer_id, total_amount, tax, delivery_charge, grand_total, address, payment_method, status)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,'confirmed')
+        (customer_id, total_amount, tax, delivery_charge, grand_total, address, payment_method)
+        VALUES ($1,$2,$3,$4,$5,$6,$7)
         RETURNING id`,
         [id, totalAmount, tax, deliveryCharge, grandTotal, address, payment_method]
       );
@@ -171,14 +171,12 @@ export const placeOrder = async (req, res) => {
         [orderNumber, orderId]
       );
 
-      // Insert order items
-     // Insert order items (FIXED ✅)
+     
 for (const item of itemsRes.rows) {
 
-  // ✅ item-level tax (18%)
+  
   const itemTax = Math.round(Number(item.total) * 0.18 * 100) / 100;
 
-  // ✅ split delivery charge per item
   const itemDelivery =
     totalAmount >= 400
       ? 0

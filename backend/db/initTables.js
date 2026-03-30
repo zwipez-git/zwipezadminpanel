@@ -199,7 +199,7 @@ await pool.query(`
   grand_total NUMERIC(10,2) NOT NULL,
   address TEXT NOT NULL,
   payment_method VARCHAR(50) NOT NULL,
-  status VARCHAR(20) DEFAULT 'confirmed',
+  status VARCHAR(20) DEFAULT 'CREATED',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
   
@@ -223,6 +223,30 @@ await pool.query(`
   price NUMERIC(10,2),
   total NUMERIC(10,2)
 );`)
+
+
+//delivery agents
+    // device_token TEXT,
+await pool.query(`
+  
+  CREATE TABLE IF NOT EXISTS  agents (
+    agent_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15),
+    
+    online BOOLEAN DEFAULT FALSE,
+    
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    
+
+    
+    current_order VARCHAR(50),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`)
+
+
 
     console.log(" All tables created ");
   } catch (error) {
