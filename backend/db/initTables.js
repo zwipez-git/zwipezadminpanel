@@ -225,26 +225,26 @@ await pool.query(`
 );`)
 
 
-//delivery agents
-    // device_token TEXT,
-await pool.query(`
+// //delivery agents
+//     // device_token TEXT,
+// await pool.query(`
   
-  CREATE TABLE IF NOT EXISTS  agents (
-    agent_id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(15),
+//   CREATE TABLE IF NOT EXISTS  agents (
+//     agent_id VARCHAR(50) PRIMARY KEY,
+//     name VARCHAR(100) NOT NULL,
+//     phone VARCHAR(15),
     
-    online BOOLEAN DEFAULT FALSE,
+//     online BOOLEAN DEFAULT FALSE,
     
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
+//     latitude DOUBLE PRECISION,
+//     longitude DOUBLE PRECISION,
     
 
     
-    current_order VARCHAR(50),
+//     current_order VARCHAR(50),
     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`)
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// );`)
 
 
 
