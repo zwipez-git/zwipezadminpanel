@@ -135,18 +135,16 @@ await pool.query(`
 await pool.query(`
   CREATE TABLE IF NOT EXISTS cart_items (
   id SERIAL PRIMARY KEY,
-
   cart_id INTEGER REFERENCES carts(id) ON DELETE CASCADE,
-
   product_id INTEGER REFERENCES products(id),
   category_id INTEGER REFERENCES categories(id),
-
   unit VARCHAR(50),
-
-
+  original_price NUMERIC(10,2),
   price NUMERIC(10,2),
+  is_mega_offer BOOLEAN DEFAULT false,
   quantity INTEGER,
   total NUMERIC(10,2),
+
 
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -227,24 +225,24 @@ await pool.query(`
 
 // //delivery agents
 //     // device_token TEXT,
-// await pool.query(`
+await pool.query(`
   
-//   CREATE TABLE IF NOT EXISTS  agents (
-//     agent_id VARCHAR(50) PRIMARY KEY,
-//     name VARCHAR(100) NOT NULL,
-//     phone VARCHAR(15),
+  CREATE TABLE IF NOT EXISTS  agents (
+    agent_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15),
     
-//     online BOOLEAN DEFAULT FALSE,
+    online BOOLEAN DEFAULT FALSE,
     
-//     latitude DOUBLE PRECISION,
-//     longitude DOUBLE PRECISION,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     
 
     
-//     current_order VARCHAR(50),
+    current_order VARCHAR(50),
     
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-// );`)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`)
 
 
 

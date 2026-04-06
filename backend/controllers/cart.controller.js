@@ -3,14 +3,17 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secret";
 
+
+//add to cart
+
 export const addToCart = async (req, res) => {
-
   const accessToken = req.headers.accesstoken;
-  const id = req.headers.id;
+  const customerId = req.headers.id;
 
-  const { productId, quantity } = req.body;
+ const { productId, quantity, isMegaOffer = false } = req.body;
 
-  if (!accessToken || !id) {
+
+  if (!accessToken || !customerId) {
     return res.status(401).json({ message: "Access token and customerId required" });
   }
 
@@ -19,34 +22,58 @@ export const addToCart = async (req, res) => {
   }
 
   try {
-
-    // Verify token
+   
     const decoded = jwt.verify(accessToken, JWT_SECRET);
 
- 
-   if (decoded.customerId != id) {
+    if (decoded.customerId != customerId) {
       return res.status(401).json({ message: "Customer ID mismatch" });
     }
 
-    // Check product exists
-    const productRes = await pool.query(
-      `SELECT id, category_id, price, unit
-       FROM products
-       WHERE id = $1`,
-      [productId]
-    );
+    let product;
+    let original_price;
+    let price;
 
-    if (!productRes.rows.length) {
-      return res.status(404).json({ message: "Product not found" });
+    //  Check Mega Offer or Normal Product
+    if (isMegaOffer) {
+      const offerRes = await pool.query(
+        `SELECT id, category_id, price, offer_price, unit
+         FROM mega_offers
+         WHERE id = $1`,
+        [productId]
+      );
+
+      if (!offerRes.rows.length) {
+        return res.status(404).json({ message: "Mega offer not found" });
+      }
+
+      product = offerRes.rows[0];
+
+      original_price = product.price;       
+      price = product.offer_price;          
+
+    } else {
+      const productRes = await pool.query(
+        `SELECT id, category_id, original_price, price, unit
+         FROM products
+         WHERE id = $1`,
+        [productId]
+      );
+
+      if (!productRes.rows.length) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      product = productRes.rows[0];
+
+      original_price = product.original_price;
+      price = product.price;
     }
 
-    const product = productRes.rows[0];
-
-    //  Get or create ACTIVE cart
+ 
     let cartRes = await pool.query(
       `SELECT id FROM carts
        WHERE customer_id = $1 AND status = 'ACTIVE'`,
-      [id]
+      [customerId]
     );
 
     let cartId;
@@ -56,7 +83,7 @@ export const addToCart = async (req, res) => {
         `INSERT INTO carts (customer_id, status, created_at)
          VALUES ($1, 'ACTIVE', NOW())
          RETURNING id`,
-        [id]
+        [customerId]
       );
 
       cartId = newCart.rows[0].id;
@@ -64,11 +91,11 @@ export const addToCart = async (req, res) => {
       cartId = cartRes.rows[0].id;
     }
 
-    // Check if product already in cart
+   
     const itemRes = await pool.query(
       `SELECT quantity FROM cart_items
-       WHERE cart_id = $1 AND product_id = $2`,
-      [cartId, productId]
+       WHERE cart_id = $1 AND product_id = $2 AND is_mega_offer = $3`,
+      [cartId, productId, isMegaOffer]
     );
 
     let finalQty = Number(quantity);
@@ -77,122 +104,153 @@ export const addToCart = async (req, res) => {
       finalQty += Number(itemRes.rows[0].quantity);
     }
 
-    const total = finalQty * product.price;
+    const total = finalQty * price;
 
-    //  Update or Insert
+
     if (itemRes.rows.length > 0) {
       await pool.query(
         `UPDATE cart_items
-         SET quantity = $1, total = $2
-         WHERE cart_id = $3 AND product_id = $4`,
-        [finalQty, total, cartId, productId]
+         SET quantity = $1,
+             price = $2,
+             original_price = $3,
+             total = $4
+         WHERE cart_id = $5
+         AND product_id = $6
+         AND is_mega_offer = $7`,
+        [finalQty, price, original_price, total, cartId, productId, isMegaOffer]
       );
     } else {
       await pool.query(
         `INSERT INTO cart_items
-         (cart_id, product_id, category_id, unit, price, quantity, total)
-         VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+         (cart_id, product_id, category_id, unit, original_price, price, quantity, total, is_mega_offer)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
         [
           cartId,
           product.id,
           product.category_id,
           product.unit,
-          // product.country,
-          product.price,
+          original_price,
+          price,
           quantity,
-          quantity * product.price
+          quantity * price,
+          isMegaOffer
         ]
       );
     }
 
-    res.json({ message: "Product added to cart successfully" });
+    return res.json({
+      message: "Product added to cart successfully",
+      data: {
+        productId,
+        isMegaOffer,
+        quantity: finalQty,
+        price,
+        original_price,
+        total
+      }
+    });
 
   } catch (err) {
-
     if (err.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Access token expired" });
     }
 
     console.error("Add to cart error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
-
+//get cart
 export const getCart = async (req, res) => {
 
   const accessToken = req.headers.accesstoken;
-  const id = req.headers.id;
+  const customerId = req.headers.id;
 
-  if (!accessToken || !id) {
+  if (!accessToken || !customerId) {
     return res.status(401).json({ message: "Access token and customerId required" });
   }
 
   try {
-
-
+   
     const decoded = jwt.verify(accessToken, JWT_SECRET);
 
-
- if (decoded.customerId != id) {
+    if (decoded.customerId != customerId) {
       return res.status(401).json({ message: "Customer ID mismatch" });
     }
 
-   
-    const cartRes = await pool.query(
+      const cartRes = await pool.query(
       `SELECT id FROM carts
        WHERE customer_id = $1 AND status = 'ACTIVE'`,
-      [id]
+      [customerId]
     );
 
     if (cartRes.rows.length === 0) {
       return res.json({
-        id,
+        customerId,
         items: [],
-        totalAmount: 0
+        totalAmount: 0,
+        tax: 0,
+        deliveryCharge: 0
       });
     }
 
     const cartId = cartRes.rows[0].id;
-//  ci.country,
+
+   
     const itemsRes = await pool.query(
       `SELECT
         ci.id AS cart_item_id,
-        p.id AS product_id,
-        p.name AS product_name,
-        p.image_url AS product_image,
+        ci.product_id,
+        ci.is_mega_offer,
+
+       
+        COALESCE(p.name, mo.name) AS product_name,
+        COALESCE(p.image_url, mo.image_url) AS product_image,
+
         c.id AS category_id,
         c.name AS category_name,
+
         ci.unit,
-       
+        ci.original_price,
         ci.price,
         ci.quantity,
         ci.total
+
        FROM cart_items ci
-       JOIN products p ON p.id = ci.product_id
-       JOIN categories c ON c.id = ci.category_id
+
+       LEFT JOIN products p 
+         ON p.id = ci.product_id AND ci.is_mega_offer = false
+
+       LEFT JOIN mega_offers mo 
+         ON mo.id = ci.product_id AND ci.is_mega_offer = true
+
+       LEFT JOIN categories c 
+         ON c.id = ci.category_id
+
        WHERE ci.cart_id = $1`,
       [cartId]
     );
 
+ 
     const totalAmount = itemsRes.rows.reduce(
-      (sum, item) => sum + Number(item.total),0
+      (sum, item) => sum + Number(item.total),
+      0
     );
-  const tax = Math.round(totalAmount * 0.18 * 100) / 100;
-    const deliveryCharge = totalAmount === 0 ? 0 : (totalAmount >= 400 ? 0 : 40);
 
-  
+    const tax = Math.round(totalAmount * 0.18 * 100) / 100;
 
+    const deliveryCharge =
+      totalAmount === 0 ? 0 : (totalAmount >= 400 ? 0 : 40);
 
-    res.json({
-      id,
+      const totalwithTax=totalAmount+tax+deliveryCharge;
+
+    return res.json({
+      customerId,
       items: itemsRes.rows,
       totalAmount,
       tax,
-      
-      deliveryCharge
-
-
+      deliveryCharge,
+      totalwithTax
     });
 
   } catch (err) {
@@ -202,11 +260,12 @@ export const getCart = async (req, res) => {
     }
 
     console.error("Get cart error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
 
+//remove cart item
 export const removeItem = async (req, res) => {
 
   const accessToken = req.headers.accesstoken;
