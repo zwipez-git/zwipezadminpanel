@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  addToCart,
+  addCart,
   getCart,
   removeItem,
   clearCart,
@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 
-router.post("/addCart", addToCart);
+router.post("/addCart", addCart);
 
 router.get("/getCart", getCart);
 

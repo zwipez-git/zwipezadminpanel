@@ -6,7 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secret";
 
 //add to cart
 
-export const addToCart = async (req, res) => {
+export const addCart = async (req, res) => {
   const accessToken = req.headers.accesstoken;
   const customerId = req.headers.id;
 
