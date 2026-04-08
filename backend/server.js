@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-
+import addressRoutes from "./routes/address.route.js"
 import authRoutes from "./routes/auth.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import productRoutes from "./routes/product.route.js";
@@ -25,11 +25,9 @@ const app = express();
 app.use(cors({
   origin: [
 
-// "http://localhost:5173",
+"http://localhost:5173"
 //   "https://goiftaradmin.onrender.com",
 //     "https://goiftar.onrender.com"
-"https://zwipezadminpanel-1.onrender.com",
-"https://zwipezadminpanel.onrender.com"
 
 
    ],
@@ -59,6 +57,8 @@ app.use("/api", categoryRoutes);
 app.use("/api", productRoutes);
 app.use("/api", BannerImagesRoutes);
 app.use("/api", megaofferRoutes);
+app.use("/api", addressRoutes);
+
 app.use("/api",cartRoutes );
 app.use("/user", customerRoutes);
 app.use("/api",DashboardRoutes)

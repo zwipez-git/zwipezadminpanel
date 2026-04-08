@@ -87,6 +87,7 @@ export const sendOtp = async (req, res) => {
     res.status(500).json({ message: "Failed to send OTP" });
   }
 };
+
 //verify otp
 
 export const verifyOtp = async (req, res) => {

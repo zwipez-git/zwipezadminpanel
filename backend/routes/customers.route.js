@@ -9,8 +9,8 @@ import {
 
 const router = express.Router();
 
-router.post("/profile", authenticateUser, UserProfile);
-router.get("/profile", getUsersList);
+router.post("/profile", authenticateUser, UserProfile); // mobile apis
+router.get("/profile",authenticateUser, getUsersList);
 router.put("/profile/:phone", updateCustomer);
 router.delete("/profile/:phone", deleteCustomer);
 

@@ -92,7 +92,11 @@ export const initTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-//customers   country VARCHAR(100),
+    
+
+// For Mobile Aplications
+
+//customers   ,
     await pool.query(`
       CREATE TABLE IF NOT EXISTS customers(
   id SERIAL PRIMARY KEY,
@@ -101,13 +105,57 @@ export const initTables = async () => {
   email VARCHAR(100),
   gender VARCHAR(10),
   dob DATE,
-  city VARCHAR(100),
-  state VARCHAR(100),
-
-  pincode VARCHAR(10),
+   role VARCHAR(50) DEFAULT 'customer',
   created_at TIMESTAMP DEFAULT NOW()
 );
 `)
+
+
+// Alter the table
+await pool.query(`
+  ALTER TABLE customers 
+  ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
+`);
+
+// Update the tabel
+await pool.query(`
+  UPDATE customers 
+  SET role = 'customer' 
+  WHERE role IS NULL;
+`);
+
+
+// create address table for multiple address adding
+
+// customer addresses table
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS customer_addresses (
+    id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
+
+    type VARCHAR(50), -- home, office, other
+    address_line TEXT,
+
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100),
+    pincode VARCHAR(10),
+
+    is_default BOOLEAN DEFAULT false,
+
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+`);
+
+// Only 1 default address per user 
+await pool.query(`
+  CREATE UNIQUE INDEX IF NOT EXISTS one_default_address
+  ON customer_addresses(customer_id)
+  WHERE is_default = true;
+`);
+
+
+
 //banner images
   await pool.query(`
     CREATE TABLE IF NOT EXISTS banners (
@@ -127,7 +175,6 @@ await pool.query(`
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP
 );
-
 `)
 
 //cart items     country VARCHAR(100),
