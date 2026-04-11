@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import pool from "../db/db.js";
 
 export const login = async (req, res) => {
+  console.log(req.body);
   const { email, password } = req.body;
 
   if (!email || !password) {
