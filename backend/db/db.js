@@ -30,7 +30,7 @@ if (process.env.DATABASE_URL) {
   });
 }
 
-// 🔌 Test connection
+// Test connection
 async function connectDB() {
   try {
     const client = await pool.connect();
@@ -43,7 +43,7 @@ async function connectDB() {
 
 connectDB();
 
-// ⚠️ Handle unexpected errors
+//  Handle unexpected errors
 pool.on("error", (err) => {
   console.error("Unexpected DB error:", err);
 });
