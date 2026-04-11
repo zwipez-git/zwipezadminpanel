@@ -25,10 +25,10 @@ const app = express();
 app.use(cors({
   origin: [
 
-"http://localhost:5173"
+// "http://localhost:5173"
 //   "https://goiftaradmin.onrender.com",
 //     "https://goiftar.onrender.com"
-
+  "https://zwipezadminpanel-1.onrender.com"
 
    ],
   credentials: true
@@ -36,7 +36,7 @@ app.use(cors({
 
 app.use(express.json());
 
-
+app.options("*", cors());
 
 
 
