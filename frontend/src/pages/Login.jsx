@@ -24,7 +24,8 @@ const handleLogin = async () => {
 
   try {
     setLoading(true); 
-
+    
+    console.log('base url',API_BASE_URL)
     const res = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
