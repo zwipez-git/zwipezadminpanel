@@ -29,6 +29,11 @@ export const initTables = async () => {
         CONSTRAINT uq_refresh_token UNIQUE (token_hash)
       );
     `);
+    // 🔥 ADD ROLE COLUMN (SAFE)
+   await pool.query(`
+      ALTER TABLE refresh_tokens
+      ADD COLUMN IF NOT EXISTS role VARCHAR(20);
+`   );
 
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_refresh_phone
@@ -111,18 +116,18 @@ export const initTables = async () => {
 `)
 
 
-// Alter the table
-await pool.query(`
-  ALTER TABLE customers 
-  ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
-`);
+// // Alter the table
+// await pool.query(`
+//   ALTER TABLE customers 
+//   ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
+// `);
 
-// Update the tabel
-await pool.query(`
-  UPDATE customers 
-  SET role = 'customer' 
-  WHERE role IS NULL;
-`);
+// // Update the tabel
+// await pool.query(`
+//   UPDATE customers 
+//   SET role = 'customer' 
+//   WHERE role IS NULL;
+// `);
 
 
 // create address table for multiple address adding
@@ -290,12 +295,30 @@ await pool.query(`
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`)
-
-
+//SHOP_OWNER
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS shops (
+    id SERIAL PRIMARY KEY,
+    shop_name VARCHAR(150),
+    owner_name VARCHAR(150),
+    phone_number VARCHAR(15) UNIQUE,
+    address TEXT,
+    is_verified BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+// ADD SHOP IMAGE + CERTIFICATE (SAFE)
+await pool.query(`
+  ALTER TABLE shops
+  ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
+  ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
+  ADD COLUMN IF NOT EXISTS has_certificate BOOLEAN DEFAULT true;
+`);
 
     console.log(" All tables created ");
   } catch (error) {
     console.error("Table creation failed:", error.message);
     process.exit(1);
   }
+
 };
