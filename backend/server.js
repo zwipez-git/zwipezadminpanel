@@ -24,20 +24,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: [
-
-"http://localhost:5173"
-//   "https://goiftaradmin.onrender.com",
-//     "https://goiftar.onrender.com"
-
-
-   ],
-  credentials: true
-}));
+app.use(cors())
 
 app.use(express.json());
-
 
 
 

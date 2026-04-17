@@ -4,7 +4,7 @@ export const addAddress = async (req, res) => {
   try {
     const customerId = req.user.customerId;
 
-    // ✅ validation first
+    //  validation first
     if (!req.body) {
       return res.status(400).json({
         status: 0,
@@ -22,7 +22,7 @@ export const addAddress = async (req, res) => {
       is_default
     } = req.body;
 
-    // ✅ check duplicate BEFORE insert
+    //  check duplicate BEFORE insert
     const existing = await pool.query(
       `SELECT id FROM customer_addresses 
        WHERE customer_id = $1 
@@ -41,7 +41,7 @@ export const addAddress = async (req, res) => {
       });
     }
 
-    // ✅ default logic
+    // default logic
     if (is_default) {
       await pool.query(
         `UPDATE customer_addresses SET is_default = false WHERE customer_id = $1`,
@@ -49,7 +49,7 @@ export const addAddress = async (req, res) => {
       );
     }
 
-    // ✅ insert
+    // insert
     const result = await pool.query(
       `INSERT INTO customer_addresses
        (customer_id, type, address_line, city, state, country, pincode, is_default)
