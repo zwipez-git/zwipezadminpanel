@@ -20,6 +20,9 @@ import OrderRoutes from './routes/order.route.js'
 import agentsRoutes from './routes/agents.route.js'
 import aiRoutes from "./routes/ai.route.js";
 import shopRoutes from "./routes/shop_owner_routes/shop.routes.js";
+import shopOrderRoutes from "./routes/shop_owner_routes/shopOrders.route.js";
+import shopProductRoutes from "./routes/shop_owner_routes/shopProduct.routes.js";
+
 dotenv.config();
 
 const app = express();
@@ -27,7 +30,7 @@ const app = express();
 app.use(cors())
 
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 
 
 
@@ -43,15 +46,15 @@ app.get("/devapiService", (req, res) => {
 app.use("/devapiService", authRoutes);
 app.use("/signup", signup);
 app.use("/login", login);
-app.use("/api", cloudinaryRoutes);
+// app.use("/api", cloudinaryRoutes);
 app.use("/api", categoryRoutes);
-app.use("/api", productRoutes);
+// app.use("/api", productRoutes);
 app.use("/api", BannerImagesRoutes);
 app.use("/api", megaofferRoutes);
 app.use("/api", addressRoutes);
 
 app.use("/api",cartRoutes );
-app.use("/user", customerRoutes);
+// app.use("/user", customerRoutes);
 app.use("/api",DashboardRoutes)
 app.use("/api",CouponRoutes)
 app.use("/api",OrderRoutes)
@@ -60,6 +63,10 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/api/user", customerRoutes);
 app.use("/api/shops", shopRoutes);
+app.use("/api/shop", shopOrderRoutes);
+app.use("/api/shop-owner", shopProductRoutes);
+app.use("/api", productRoutes);
+app.use("/api", OrderRoutes)
 
 const PORT = process.env.PORT || 5000;
 

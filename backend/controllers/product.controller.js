@@ -63,7 +63,8 @@ export const getProducts = async (req, res) => {
         p.is_active,
         p.created_at
       FROM products p
-      JOIN categories c ON p.category_id = c.id
+     
+      LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.id ASC
     `);
 
