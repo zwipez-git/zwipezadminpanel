@@ -26,7 +26,9 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 5432,
-    ssl: false,
+   ssl: {
+    rejectUnauthorized: false, 
+  },
   });
 }
 
