@@ -60,7 +60,8 @@ app.use("/api",CouponRoutes)
 app.use("/api",OrderRoutes)
 app.use("/api",agentsRoutes)
 app.use("/api/ai", aiRoutes);
-app.use("/api/cloudinary", cloudinaryRoutes);
+// app.use("/api/cloudinary", cloudinaryRoutes);
+app.use("/devapiService/cloudinary", cloudinaryRoutes);
 app.use("/api/user", customerRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/shop", shopOrderRoutes);
