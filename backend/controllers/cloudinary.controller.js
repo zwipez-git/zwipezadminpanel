@@ -9,10 +9,7 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 export const getCloudinarySignature = (req, res) => {
-  res.json({
-    message: "Cloudinary route working",
-    timestamp: Date.now()
-  });
+ 
   try {
     const timestamp = Math.floor(Date.now() / 1000);
 
