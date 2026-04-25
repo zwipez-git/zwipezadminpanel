@@ -169,11 +169,13 @@ export const getProducts = async (req, res) => {
 
         p.name,
         p.category_id,
+        c.name AS category_name,
         p.image_url,
         p.unit
 
       FROM shop_products sp
       JOIN products p ON p.id = sp.product_id
+      LEFT JOIN categories c ON p.category_id = c.id
       WHERE sp.shop_id = $1
       `,
       [shopId]
