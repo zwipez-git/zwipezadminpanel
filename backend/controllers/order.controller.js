@@ -72,7 +72,8 @@ const accessToken = authHeader.split(" ")[1];
     const tax = Math.round(totalAmount * 0.18 * 100) / 100;
     const deliveryCharge = totalAmount === 0 ? 0 : (totalAmount >= 400 ? 0 : 40);
 
-    const grandTotal = totalAmount + tax + deliveryCharge;
+    // const grandTotal = totalAmount + tax + deliveryCharge;
+    const grandTotal = totalAmount + tax + deliveryCharge - discount;
 
     res.json({
       customer_id: id,
@@ -275,7 +276,8 @@ export const placeOrder = async (req, res) => {
   const id = req.headers.id;
 
   // const { address, payment_method, shop_id } = req.body;
-const { address, payment_method } = req.body;
+// const { address, payment_method } = req.body;
+const { address, payment_method, coupon_code } = req.body;
   //  validation
   if (!accessToken || !id) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -360,13 +362,50 @@ if (!shopRes.rows.length || !shopRes.rows[0].shop_id) {
 
 const shop_id = shopRes.rows[0].shop_id;
 
+let discount = 0;
+
+if (coupon_code) {
+  const couponRes = await client.query(
+    `SELECT * FROM coupons 
+     WHERE code=$1 AND is_active=true 
+     AND (expires_at IS NULL OR expires_at > NOW())`,
+    [coupon_code]
+  );
+
+  if (couponRes.rows.length) {
+    const coupon = couponRes.rows[0];
+
+    if (totalAmount >= coupon.min_order) {
+
+      if (coupon.type === "percent") {
+        discount = totalAmount * (coupon.value / 100);
+
+        if (coupon.max_discount) {
+          discount = Math.min(discount, coupon.max_discount);
+        }
+      }
+
+      if (coupon.type === "flat") {
+        discount = coupon.value;
+      }
+
+      // ✅ store usage NOW (correct place)
+      await client.query(
+        `INSERT INTO coupon_usage(customer_id, coupon_id)
+         VALUES($1,$2)`,
+        [id, coupon.id]
+      );
+    }
+  }
+}
+
 // ✅ ONLY INSERT (FINAL)
 const orderRes = await client.query(
   `INSERT INTO orders
-  (customer_id, shop_id, total_amount, tax, delivery_charge, grand_total, address, payment_method)
+  (customer_id, shop_id, total_amount, tax,discount, delivery_charge, grand_total, coupon_code, address, payment_method)
   VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
   RETURNING id`,
-  [id, shop_id, totalAmount, tax, deliveryCharge, grandTotal, address, payment_method]
+  [id, shop_id, totalAmount, tax, deliveryCharge, discount, grandTotal,  coupon_code,address, payment_method]
 );
 
 const orderId = orderRes.rows[0].id; // ✅ ONLY ONCE

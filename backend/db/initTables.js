@@ -258,9 +258,33 @@ await pool.query(`
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
   
+  `)
+
+await pool.query(`
   
+  CREATE TABLE IF NOT EXISTS  orders (
+  id SERIAL PRIMARY KEY,
+  order_number VARCHAR(20),
+  customer_id INT NOT NULL,
+  total_amount NUMERIC(10,2) NOT NULL,
+  tax NUMERIC(10,2) DEFAULT 0,
+  delivery_charge NUMERIC(10,2) DEFAULT 0,
+  grand_total NUMERIC(10,2) NOT NULL,
+  address TEXT NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
+  status VARCHAR(20) DEFAULT 'CREATED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
   
   `)
+
+//order items
+
+await pool.query(`
+  ALTER TABLE orders
+ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50),
+ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0;
+`)
 
 //order items
 
