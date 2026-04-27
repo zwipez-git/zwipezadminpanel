@@ -66,6 +66,10 @@ export const initTables = async () => {
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
     `);
+     await pool.query(`
+ ALTER TABLE products
+ADD COLUMN IF NOT EXISTS shop_id INT REFERENCES shops(shop_id);
+    `);
 
 //mega offer table   country VARCHAR(100),
       await pool.query(`
