@@ -283,7 +283,8 @@ await pool.query(`
 await pool.query(`
   ALTER TABLE orders
 ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50),
-ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0;
+ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0,
+ADD COLUMN IF NOT EXISTS instructions TEXT;
 `)
 
 //order items

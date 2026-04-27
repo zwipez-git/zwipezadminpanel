@@ -277,7 +277,7 @@ export const placeOrder = async (req, res) => {
 
   // const { address, payment_method, shop_id } = req.body;
 // const { address, payment_method } = req.body;
-const { address, payment_method, coupon_code } = req.body;
+const { address, payment_method, coupon_code, instructions } = req.body;
   //  validation
   if (!accessToken || !id) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -400,14 +400,34 @@ if (coupon_code) {
 }
 
 // ✅ ONLY INSERT (FINAL)
+// const orderRes = await client.query(
+//   `INSERT INTO orders
+//   (customer_id, shop_id, total_amount, tax,discount, delivery_charge, grand_total, coupon_code, address, payment_method)
+//   VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+//   RETURNING id`,
+//   [id, shop_id, totalAmount, tax, deliveryCharge, discount, grandTotal,  coupon_code,address, payment_method]
+// );
+
+// ✅ FINAL INSERT (WITH INSTRUCTIONS)
 const orderRes = await client.query(
   `INSERT INTO orders
-  (customer_id, shop_id, total_amount, tax,discount, delivery_charge, grand_total, coupon_code, address, payment_method)
-  VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+  (customer_id, shop_id, total_amount, tax, discount, delivery_charge, grand_total, coupon_code, address, payment_method, instructions)
+  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
   RETURNING id`,
-  [id, shop_id, totalAmount, tax, deliveryCharge, discount, grandTotal,  coupon_code,address, payment_method]
+  [
+    id,
+    shop_id,
+    totalAmount,
+    tax,
+    discount,
+    deliveryCharge,
+    grandTotal,
+    coupon_code,
+    address,
+    payment_method,
+    instructions
+  ]
 );
-
 const orderId = orderRes.rows[0].id; // ✅ ONLY ONCE
 
 const orderNumber = `ORD-${1000 + orderId}`;
@@ -634,8 +654,8 @@ export const getOrderDetailsCustomer = async (req, res) => {
 
     const tax = Math.round(subtotal * 0.18 * 100) / 100;
     const deliveryCharge = subtotal >= 400 ? 0 : 40;
-    const grandTotal = subtotal + tax + deliveryCharge;
-
+    // const grandTotal = subtotal + tax + deliveryCharge;
+const grandTotal = totalAmount + tax + deliveryCharge - discount;
     return res.json({
       order: orderRes.rows[0],
       items,
