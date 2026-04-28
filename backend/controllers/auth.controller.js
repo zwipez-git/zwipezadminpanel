@@ -225,11 +225,7 @@ const delivery = {
       phone_number,
       role,
       customerId,
-<<<<<<< HEAD
       deliveryId, 
-=======
-      shopId,
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
     });
 
     const plainRefreshToken = generateRefreshTokenPlain();
@@ -288,12 +284,7 @@ export const refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken({
       phone_number: tokenData.phone_number,
       role: tokenData.role,
-<<<<<<< HEAD
       deliveryId,
-=======
-       customerId: tokenData.customer_id || null,
-  shopId: tokenData.shop_id || null,
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
     });
 
     res.json({
