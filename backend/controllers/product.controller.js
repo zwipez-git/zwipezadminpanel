@@ -8,7 +8,7 @@ export const addProduct = async (req, res) => {
       category_id,
       original_price,
       price,
-      shop_id,
+      // shop_id,
       // country,
       unit,
       description,
@@ -19,8 +19,8 @@ export const addProduct = async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO products
-      (name, category_id,shop_id, original_price, price,  unit, description, image_url, is_active)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      (name, category_id,, original_price, price,  unit, description, image_url, is_active)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
       RETURNING *
       `,
       [
@@ -28,7 +28,7 @@ export const addProduct = async (req, res) => {
         category_id,
         original_price,
         price,
-        shop_id,
+        // shop_id,
         // country,
         unit,
         description,
@@ -58,7 +58,7 @@ export const getProducts = async (req, res) => {
         c.name AS category_name,
         p.original_price,
         p.price,
-        p.shop_id,
+       
         p.unit,
         p.description,
         p.image_url,
@@ -121,7 +121,7 @@ export const updateProduct = async (req, res) => {
   const {
     name,
     category_id,
-    shop_id,
+    // shop_id,
     original_price,
     price,
     // country,
@@ -140,7 +140,7 @@ export const updateProduct = async (req, res) => {
         category_id = $2,
         original_price = $3,
         price = $4,
-        shop_id = $3,
+        
         unit = $5,
         description = $6,
         image_url = $7,
