@@ -50,14 +50,8 @@ export const initTables = async () => {
       );
     `);
 
-<<<<<<< HEAD
     //product table  country VARCHAR(100),
     await pool.query(`CREATE TABLE IF NOT EXISTS products (
-=======
-  //product table  country VARCHAR(100),
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS products (
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
@@ -107,12 +101,6 @@ ADD COLUMN IF NOT EXISTS shop_id INT REFERENCES shops(shop_id);
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-<<<<<<< HEAD
-=======
-    await pool.query(`
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS shop_id INTEGER;
-    `);
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
 
 
     // For Mobile Aplications
@@ -295,20 +283,7 @@ await pool.query(`
 
     //order items
 
-<<<<<<< HEAD
     await pool.query(`
-=======
-await pool.query(`
-  ALTER TABLE orders
-ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50),
-ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0,
-ADD COLUMN IF NOT EXISTS instructions TEXT;
-`)
-
-//order items
-
-await pool.query(`
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
   
   
   
@@ -356,7 +331,6 @@ await pool.query(`
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `);
-<<<<<<< HEAD
     // Delivery_partners
  await pool.query(`
   CREATE TABLE IF NOT EXISTS delivery_partners (
@@ -383,17 +357,6 @@ await pool.query(`
   ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
   ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
   ADD COLUMN IF NOT EXISTS has_certificate BOOLEAN DEFAULT true;
-=======
-// ADD SHOP IMAGE + CERTIFICATE (SAFE)
-await pool.query(`
- ALTER TABLE shops
-ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
-ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
-ADD COLUMN IF NOT EXISTS has_certificate BOOLEAN DEFAULT true,
-ADD COLUMN IF NOT EXISTS opening_time TIME,
-ADD COLUMN IF NOT EXISTS closing_time TIME,
-ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
->>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
 `);
 await pool.query(`
   ALTER TABLE orders 
