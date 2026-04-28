@@ -386,6 +386,21 @@ await pool.query(`
     UNIQUE(shop_id, order_id)
   );
 `);
+
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS order_pickup_otps (
+    id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    verified_at TIMESTAMP NULL,
+    verified_by_shop_id INT NULL REFERENCES shops(shop_id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(order_id)
+  );
+`);
 // shop owner add product
 await pool.query(`
 CREATE TABLE IF NOT EXISTS shop_products (

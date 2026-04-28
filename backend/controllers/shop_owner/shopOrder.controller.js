@@ -43,6 +43,8 @@ import pool from "../../db/db.js";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secret";
+const generate4DigitOtp = () =>
+  Math.floor(1000 + Math.random() * 9000).toString();
 
 const getShopIdFromToken = (req) => {
   const accessToken =
@@ -300,10 +302,28 @@ export const markShopOrderReadyForPickup = async (req, res) => {
       return res.status(result.code).json({ status: 0, message: result.error });
     }
 
+    const pickupOtp = generate4DigitOtp();
+    await pool.query(
+      `INSERT INTO order_pickup_otps (order_id, shop_id, otp, expires_at)
+       VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours')
+       ON CONFLICT (order_id) DO UPDATE SET
+         otp = EXCLUDED.otp,
+         expires_at = EXCLUDED.expires_at,
+         verified_at = NULL,
+         verified_by_shop_id = NULL,
+         updated_at = NOW()`,
+      [Number(order_id), auth.shopId, pickupOtp]
+    );
+
     return res.json({
       status: 1,
-      message: "Order moved to ready for pickup",
-      data: { order_id: Number(order_id), status: "READY" },
+      message: "Order moved to ready for pickup and pickup OTP generated",
+      data: {
+        order_id: Number(order_id),
+        status: "READY",
+        pickup_otp: pickupOtp,
+        pickup_otp_validity_hours: 24,
+      },
     });
   } catch (err) {
     console.error("Ready for pickup error:", err);

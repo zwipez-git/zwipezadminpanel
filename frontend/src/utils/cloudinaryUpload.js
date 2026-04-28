@@ -7,18 +7,24 @@ export const uploadToCloudinary = async (file, folder) => {
       ? folder
       : `fruvvy_images/${folder}`;
 
+    // const sigRes = await fetch(
+    //   `${API_BASE_URL}/api/cloudinary/cloudinary-signature?folder=${encodeURIComponent(
+    //     fullFolder
+    //   )}`
+    // );
+    console.log("FRONTEND FOLDER:", fullFolder);
     const sigRes = await fetch(
-      `${API_BASE_URL}/api/cloudinary-signature?folder=${encodeURIComponent(
-        fullFolder
-      )}`
-    );
+  `${API_BASE_URL}/api/cloudinary/cloudinary-signature?folder=${encodeURIComponent(fullFolder)}`
+);
+
 
     const sig = await sigRes.json();
+    console.log("SIGNATURE RESPONSE:", sig);
     if (!sig.signature) throw new Error("Signature missing");
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("api_key", sig.apiKey);
+    formData.append("api_key", sig.api_key);
     formData.append("timestamp", sig.timestamp);
     formData.append("signature", sig.signature);
     formData.append("folder", fullFolder);
