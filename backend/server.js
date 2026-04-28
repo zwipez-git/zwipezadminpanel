@@ -18,8 +18,9 @@ import DashboardRoutes from './routes/dashboad.route.js'
 import CouponRoutes from './routes/coupon.route.js'
 import OrderRoutes from './routes/order.route.js'
 import agentsRoutes from './routes/agents.route.js'
-import aiRoutes from "./routes/ai.route.js";
-import shopRoutes from "./routes/shop_owner_routes/shop.routes.js";
+// import aiRoutes from "./routes/ai.route.js";
+// import shopRoutes from "./routes/shop_owner_routes/shop.routes.js";
+import deliveryRoutes from "./routes/delivery.route.js";
 dotenv.config();
 
 const app = express();
@@ -28,7 +29,7 @@ app.use(cors())
 
 app.use(express.json());
 
-
+console.log("DELIVERY ROUTE LOADED");
 
 
 app.use("/", homeRoutes);
@@ -56,10 +57,11 @@ app.use("/api",DashboardRoutes)
 app.use("/api",CouponRoutes)
 app.use("/api",OrderRoutes)
 app.use("/api",agentsRoutes)
-app.use("/api/ai", aiRoutes);
+// app.use("/api/ai", aiRoutes);
 app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/api/user", customerRoutes);
-app.use("/api/shops", shopRoutes);
+// app.use("/api/shops", shopRoutes);
+app.use("/api/delivery", deliveryRoutes);
 
 const PORT = process.env.PORT || 5000;
 

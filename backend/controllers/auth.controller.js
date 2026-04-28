@@ -24,7 +24,7 @@ const generateAccessToken = (payload) =>
 const refreshTokenExpiryDate = () =>
   new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
-/// 🔥 ROLE CHECK
+/// ROLE CHECK
 const getUserRole = async (phone_number) => {
   let role = "customer";
 
@@ -40,7 +40,7 @@ const getUserRole = async (phone_number) => {
   return role;
 };
 
-/// 🔐 AUTH MIDDLEWARE
+/// AUTH MIDDLEWARE
 export const authMiddleware = (required = true) => {
   return (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -121,7 +121,11 @@ if (app_type === "shop") {
   role = "shop_owner";
 } else if (app_type === "user") {
   role = "customer";
-} else {
+}
+ else if (app_type === "delivery") {
+  role = "delivery_partner";
+  }
+   else {
   // fallback (auto detect)
   role = await getUserRole(phone_number);
 }
@@ -181,24 +185,58 @@ if (role === "shop_owner") {
   );
 }
 
+
+//  DELIVERY PARTNER FLOW
+
+let deliveryId = null;
+let isNewDeliveryUser = false;
+
+if (role === "delivery_partner") {
+  const deliveryResult = await pool.query(
+    `SELECT id FROM delivery_partners WHERE phone_number=$1`,
+    [phone_number]
+  );
+
+  if (deliveryResult.rows.length) {
+    //  EXISTING USER → LOGIN
+    deliveryId = deliveryResult.rows[0].id;
+    isNewDeliveryUser = false;
+
+  } else {
+    //  NEW USER → DO NOT CREATE HERE
+    deliveryId = null;
+    isNewDeliveryUser = true;
+  }
+
+const delivery = {
+  id: deliveryId,
+  phone_number,
+  isNewUser: isNewDeliveryUser,
+};
+}
+
+
+
+
     // 🔐 TOKENS
     const accessToken = generateAccessToken({
       phone_number,
       role,
       customerId,
+      deliveryId, 
     });
 
     const plainRefreshToken = generateRefreshTokenPlain();
     const refreshTokenHash = hashToken(plainRefreshToken);
     const refreshExpiresAt = refreshTokenExpiryDate();
 
-    // ✅ DELETE ONLY SAME ROLE
+    //  DELETE ONLY SAME ROLE
     await pool.query(
       `DELETE FROM refresh_tokens WHERE phone_number=$1 AND role=$2`,
       [phone_number, role]
     );
 
-    // ✅ INSERT ROLE BASED
+    //  INSERT ROLE BASED
     await pool.query(
       `INSERT INTO refresh_tokens
        (phone_number, token_hash, role, expires_at, created_at)
@@ -209,6 +247,8 @@ if (role === "shop_owner") {
     res.json({
       phone_number,
       role,
+      deliveryId,
+     isNewUser: isNewDeliveryUser,
       accessToken,
       refreshToken: plainRefreshToken,
       message: "Login successful",
@@ -240,6 +280,7 @@ export const refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken({
       phone_number: tokenData.phone_number,
       role: tokenData.role,
+      deliveryId,
     });
 
     res.json({

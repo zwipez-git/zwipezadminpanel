@@ -2,7 +2,7 @@ import pool from "./db.js";
 
 export const initTables = async () => {
   try {
-//otp store table
+    //otp store table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS otp_store (
         id SERIAL PRIMARY KEY,
@@ -18,7 +18,7 @@ export const initTables = async () => {
       ON otp_store(phone_number);
     `);
 
-  //refresh tokens table
+    //refresh tokens table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS refresh_tokens (
         id SERIAL PRIMARY KEY,
@@ -30,7 +30,7 @@ export const initTables = async () => {
       );
     `);
     // 🔥 ADD ROLE COLUMN (SAFE)
-   await pool.query(`
+    await pool.query(`
       ALTER TABLE refresh_tokens
       ADD COLUMN IF NOT EXISTS role VARCHAR(20);
 `   );
@@ -40,7 +40,7 @@ export const initTables = async () => {
       ON refresh_tokens(phone_number);
     `);
 
-//categories table 
+    //categories table 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS categories (
         id SERIAL PRIMARY KEY,
@@ -50,7 +50,7 @@ export const initTables = async () => {
       );
     `);
 
-  //product table  country VARCHAR(100),
+    //product table  country VARCHAR(100),
     await pool.query(`CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -66,8 +66,8 @@ export const initTables = async () => {
 );
     `);
 
-//mega offer table   country VARCHAR(100),
-      await pool.query(`
+    //mega offer table   country VARCHAR(100),
+    await pool.query(`
         CREATE TABLE IF NOT EXISTS  mega_offers (
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -83,9 +83,9 @@ export const initTables = async () => {
 
     `);
 
-    
+    // This for admin panel
     //users
-     await pool.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
@@ -97,11 +97,11 @@ export const initTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    
 
-// For Mobile Aplications
 
-//customers   ,
+    // For Mobile Aplications
+
+    //customers   ,
     await pool.query(`
       CREATE TABLE IF NOT EXISTS customers(
   id SERIAL PRIMARY KEY,
@@ -116,24 +116,24 @@ export const initTables = async () => {
 `)
 
 
-// // Alter the table
-// await pool.query(`
-//   ALTER TABLE customers 
-//   ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
-// `);
+    // // Alter the table
+    // await pool.query(`
+    //   ALTER TABLE customers 
+    //   ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'customer';
+    // `);
 
-// // Update the tabel
-// await pool.query(`
-//   UPDATE customers 
-//   SET role = 'customer' 
-//   WHERE role IS NULL;
-// `);
+    // // Update the tabel
+    // await pool.query(`
+    //   UPDATE customers 
+    //   SET role = 'customer' 
+    //   WHERE role IS NULL;
+    // `);
 
 
-// create address table for multiple address adding
+    // create address table for multiple address adding
 
-// customer addresses table
-await pool.query(`
+    // customer addresses table
+    await pool.query(`
   CREATE TABLE IF NOT EXISTS customer_addresses (
     id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
@@ -152,8 +152,8 @@ await pool.query(`
   );
 `);
 
-// Only 1 default address per user 
-await pool.query(`
+    // Only 1 default address per user 
+    await pool.query(`
   CREATE UNIQUE INDEX IF NOT EXISTS one_default_address
   ON customer_addresses(customer_id)
   WHERE is_default = true;
@@ -161,8 +161,8 @@ await pool.query(`
 
 
 
-//banner images
-  await pool.query(`
+    //banner images
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS banners (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
@@ -171,8 +171,8 @@ await pool.query(`
 );
 
     `);
-//cart
-await pool.query(`
+    //cart
+    await pool.query(`
   CREATE TABLE IF NOT EXISTS carts (
   id SERIAL PRIMARY KEY,
   customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
@@ -182,9 +182,9 @@ await pool.query(`
 );
 `)
 
-//cart items     country VARCHAR(100),
+    //cart items     country VARCHAR(100),
 
-await pool.query(`
+    await pool.query(`
   CREATE TABLE IF NOT EXISTS cart_items (
   id SERIAL PRIMARY KEY,
   cart_id INTEGER REFERENCES carts(id) ON DELETE CASCADE,
@@ -204,10 +204,10 @@ await pool.query(`
 );
 `)
 
-//coupons tables 
+    //coupons tables 
 
 
-await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
+    await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
   id SERIAL PRIMARY KEY,
   code VARCHAR(50) UNIQUE NOT NULL,
   type VARCHAR(20) NOT NULL,
@@ -222,8 +222,8 @@ await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
 );
   `)
 
-  // coupon usage table
-  await pool.query(`
+    // coupon usage table
+    await pool.query(`
     
   CREATE TABLE IF NOT EXISTS coupon_usage (
   id SERIAL PRIMARY KEY,
@@ -235,9 +235,9 @@ await pool.query(` CREATE TABLE IF NOT EXISTS coupons (
     `)
 
 
-//orders
+    //orders
 
-await pool.query(`
+    await pool.query(`
   
   CREATE TABLE IF NOT EXISTS  orders (
   id SERIAL PRIMARY KEY,
@@ -257,9 +257,9 @@ await pool.query(`
   
   `)
 
-//order items
+    //order items
 
-await pool.query(`
+    await pool.query(`
   
   
   
@@ -275,9 +275,9 @@ await pool.query(`
 );`)
 
 
-// //delivery agents
-//     // device_token TEXT,
-await pool.query(`
+    // //delivery agents
+    //     // device_token TEXT,
+    await pool.query(`
   
   CREATE TABLE IF NOT EXISTS  agents (
     agent_id VARCHAR(50) PRIMARY KEY,
@@ -295,8 +295,8 @@ await pool.query(`
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`)
-//SHOP_OWNER
-await pool.query(`
+    //SHOP_OWNER
+    await pool.query(`
   CREATE TABLE IF NOT EXISTS shops (
     id SERIAL PRIMARY KEY,
     shop_name VARCHAR(150),
@@ -307,8 +307,28 @@ await pool.query(`
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `);
-// ADD SHOP IMAGE + CERTIFICATE (SAFE)
-await pool.query(`
+    // Delivery_partners
+ await pool.query(`
+  CREATE TABLE IF NOT EXISTS delivery_partners (
+    id SERIAL PRIMARY KEY,
+    phone_number VARCHAR(15) UNIQUE NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    father_name VARCHAR(100),
+    dob DATE,
+    whatsapp_number VARCHAR(15),
+    secondary_phone VARCHAR(15),
+    blood_group VARCHAR(10),
+    city VARCHAR(100),
+    address TEXT,
+    preferred_language VARCHAR(50),
+    is_profile_completed BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+    // ADD SHOP IMAGE + CERTIFICATE (SAFE)
+    await pool.query(`
   ALTER TABLE shops
   ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
   ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
