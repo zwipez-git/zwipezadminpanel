@@ -161,21 +161,23 @@ let shopId = null;
 
 if (role === "shop_owner") {
   const shop = await pool.query(
-    `SELECT id FROM shops WHERE phone_number=$1`,
+    `SELECT shop_id FROM shops WHERE phone_number=$1`,
     [phone_number]
   );
 
   if (shop.rows.length) {
     // ✅ already exists
-    shopId = shop.rows[0].id;
+    // shopId = shop.rows[0].id;
+    shopId = shop.rows[0].shop_id; 
   } else {
     // ✅ create new shop (like customer logic)
     const insert = await pool.query(
-      `INSERT INTO shops (phone_number, is_verified, created_at)
-       VALUES ($1, true, NOW()) RETURNING id`,
-      [phone_number]
-    );
-    shopId = insert.rows[0].id;
+  `INSERT INTO shops (phone_number, is_verified, created_at)
+   VALUES ($1, true, NOW()) RETURNING shop_id`,
+  [phone_number]
+);
+
+shopId = insert.rows[0].shop_id;
   }
 
   // ✅ mark verified (safe even if already true)
@@ -223,7 +225,11 @@ const delivery = {
       phone_number,
       role,
       customerId,
+<<<<<<< HEAD
       deliveryId, 
+=======
+      shopId,
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
     });
 
     const plainRefreshToken = generateRefreshTokenPlain();
@@ -250,6 +256,8 @@ const delivery = {
       deliveryId,
      isNewUser: isNewDeliveryUser,
       accessToken,
+      customerId,
+  shopId, 
       refreshToken: plainRefreshToken,
       message: "Login successful",
     });
@@ -280,7 +288,12 @@ export const refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken({
       phone_number: tokenData.phone_number,
       role: tokenData.role,
+<<<<<<< HEAD
       deliveryId,
+=======
+       customerId: tokenData.customer_id || null,
+  shopId: tokenData.shop_id || null,
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
     });
 
     res.json({

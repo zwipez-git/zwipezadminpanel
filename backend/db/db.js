@@ -14,9 +14,10 @@ let pool;
 if (process.env.DATABASE_URL) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
+    // ssl: {
+    //   rejectUnauthorized: false,
+    // },
+    ssl: false,
   });
 } else {
   // Local DB config
@@ -26,7 +27,10 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 5432,
-    ssl: false,
+  //  ssl: {
+  //   rejectUnauthorized: false, 
+  // },
+  ssl: false,
   });
 }
 

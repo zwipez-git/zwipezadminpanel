@@ -9,15 +9,32 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 export const getCloudinarySignature = (req, res) => {
+ 
   try {
     const timestamp = Math.floor(Date.now() / 1000);
 
-  
-    const folder = req.query.folder;
+   const { type, shopId } = req.query;
 
-    if (!folder) {
-      return res.status(400).json({ message: "Folder is required" });
+    if (!type || !shopId) {
+      return res.status(400).json({ message: "type & shopId required" });
     }
+console.log("SIGNATURE API HIT");
+console.log("CLOUD NAME:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("🔥 NEW CLOUDINARY CONTROLLER RUNNING");
+    let folder;
+
+    if (type === "shop") {
+      folder = `stores/shop_images/${shopId}`;
+    } else if (type === "certificate") {
+      folder = `stores/shop_certificates/${shopId}`;
+    } else {
+      return res.status(400).json({ message: "Invalid type" });
+    }
+    // const folder = req.query.folder;
+
+    // if (!folder) {
+    //   return res.status(400).json({ message: "Folder is required" });
+    // }
 
     const signature = cloudinary.v2.utils.api_sign_request(
       {
@@ -38,4 +55,6 @@ export const getCloudinarySignature = (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Signature error" });
   }
+  
 };
+

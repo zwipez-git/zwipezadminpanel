@@ -50,20 +50,30 @@ export const initTables = async () => {
       );
     `);
 
+<<<<<<< HEAD
     //product table  country VARCHAR(100),
     await pool.query(`CREATE TABLE IF NOT EXISTS products (
+=======
+  //product table  country VARCHAR(100),
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS products (
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+  shop_id INT REFERENCES shops(shop_id), 
   original_price NUMERIC(10,2),
   price NUMERIC(10,2),
- 
   unit VARCHAR(50),
   description TEXT,
   image_url TEXT,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+    `);
+     await pool.query(`
+ ALTER TABLE products
+ADD COLUMN IF NOT EXISTS shop_id INT REFERENCES shops(shop_id);
     `);
 
     //mega offer table   country VARCHAR(100),
@@ -97,6 +107,12 @@ export const initTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+<<<<<<< HEAD
+=======
+    await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS shop_id INTEGER;
+    `);
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
 
 
     // For Mobile Aplications
@@ -201,7 +217,11 @@ export const initTables = async () => {
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   UNIQUE(cart_id, product_id)
+  
 );
+`)
+await pool.query(`
+ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS shop_id INT;
 `)
 
     //coupons tables 
@@ -253,13 +273,42 @@ export const initTables = async () => {
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
   
+  `)
+
+await pool.query(`
   
+  CREATE TABLE IF NOT EXISTS  orders (
+  id SERIAL PRIMARY KEY,
+  order_number VARCHAR(20),
+  customer_id INT NOT NULL,
+  total_amount NUMERIC(10,2) NOT NULL,
+  tax NUMERIC(10,2) DEFAULT 0,
+  delivery_charge NUMERIC(10,2) DEFAULT 0,
+  grand_total NUMERIC(10,2) NOT NULL,
+  address TEXT NOT NULL,
+  payment_method VARCHAR(50) NOT NULL,
+  status VARCHAR(20) DEFAULT 'CREATED',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
   
   `)
 
     //order items
 
+<<<<<<< HEAD
     await pool.query(`
+=======
+await pool.query(`
+  ALTER TABLE orders
+ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50),
+ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0,
+ADD COLUMN IF NOT EXISTS instructions TEXT;
+`)
+
+//order items
+
+await pool.query(`
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
   
   
   
@@ -298,7 +347,7 @@ export const initTables = async () => {
     //SHOP_OWNER
     await pool.query(`
   CREATE TABLE IF NOT EXISTS shops (
-    id SERIAL PRIMARY KEY,
+    shop_id SERIAL PRIMARY KEY,
     shop_name VARCHAR(150),
     owner_name VARCHAR(150),
     phone_number VARCHAR(15) UNIQUE,
@@ -307,6 +356,7 @@ export const initTables = async () => {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `);
+<<<<<<< HEAD
     // Delivery_partners
  await pool.query(`
   CREATE TABLE IF NOT EXISTS delivery_partners (
@@ -333,7 +383,60 @@ export const initTables = async () => {
   ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
   ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
   ADD COLUMN IF NOT EXISTS has_certificate BOOLEAN DEFAULT true;
+=======
+// ADD SHOP IMAGE + CERTIFICATE (SAFE)
+await pool.query(`
+ ALTER TABLE shops
+ADD COLUMN IF NOT EXISTS shop_image_url TEXT,
+ADD COLUMN IF NOT EXISTS certificate_image_url TEXT,
+ADD COLUMN IF NOT EXISTS has_certificate BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS opening_time TIME,
+ADD COLUMN IF NOT EXISTS closing_time TIME,
+ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+>>>>>>> a498e6384dccb05c990e9b217ea026ce2bac2f0f
 `);
+await pool.query(`
+  ALTER TABLE orders 
+  ADD COLUMN IF NOT EXISTS shop_id INT;
+`);
+
+// shop owner accepts/rejects (separate tables, per shop_id)
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS shop_order_accepts (
+    id SERIAL PRIMARY KEY,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    accepted_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(shop_id, order_id)
+  );
+`);
+
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS shop_order_rejects (
+    id SERIAL PRIMARY KEY,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    reason TEXT,
+    rejected_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(shop_id, order_id)
+  );
+`);
+// shop owner add product
+await pool.query(`
+CREATE TABLE IF NOT EXISTS shop_products (
+  id SERIAL PRIMARY KEY,
+  shop_id INT NOT NULL,
+  product_id INT REFERENCES products(id) ON DELETE CASCADE,
+  price NUMERIC(10,2),
+  stock INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  UNIQUE(shop_id, product_id)
+);
+`);
+
 
     console.log(" All tables created ");
   } catch (error) {

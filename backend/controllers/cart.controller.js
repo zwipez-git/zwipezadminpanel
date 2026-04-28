@@ -11,15 +11,20 @@ export const addCart = async (req, res) => {
   const customerId = req.headers.id;
 
  const { productId, quantity, isMegaOffer = false } = req.body;
-
+console.log("BODY:", req.body);
+console.log("ProductId:", req.body.ProductId);
+console.log("quantity:", req.body.quantity);
 
   if (!accessToken || !customerId) {
     return res.status(401).json({ message: "Access token and customerId required" });
   }
 
-  if (!productId || !quantity) {
-    return res.status(400).json({ message: "ProductId and quantity required" });
-  }
+ if (productId === undefined || quantity === undefined) {
+  return res.status(400).json({
+    message: "ProductId and quantity required"
+  });
+
+}
 
   try {
    
@@ -36,7 +41,7 @@ export const addCart = async (req, res) => {
     //  Check Mega Offer or Normal Product
     if (isMegaOffer) {
       const offerRes = await pool.query(
-        `SELECT id, category_id, price, offer_price, unit
+        `SELECT id, category_id, price, offer_price, unit,shop_id
          FROM mega_offers
          WHERE id = $1`,
         [productId]
@@ -52,12 +57,25 @@ export const addCart = async (req, res) => {
       price = product.offer_price;          
 
     } else {
+      // const productRes = await pool.query(
+      //   `SELECT id, category_id, original_price, price, unit, shop_id
+      //    FROM products
+      //    WHERE id = $1`,
+      //   [productId]
+      // );
       const productRes = await pool.query(
-        `SELECT id, category_id, original_price, price, unit
-         FROM products
-         WHERE id = $1`,
-        [productId]
-      );
+  `SELECT 
+     p.id,
+     p.category_id,
+     p.original_price,
+     p.price,
+     p.unit,
+     sp.shop_id   -- ✅ CORRECT SOURCE
+   FROM products p
+   JOIN shop_products sp ON sp.product_id = p.id
+   WHERE p.id = $1`,
+  [productId]
+);
 
       if (!productRes.rows.length) {
         return res.status(404).json({ message: "Product not found" });
@@ -122,8 +140,8 @@ export const addCart = async (req, res) => {
     } else {
       await pool.query(
         `INSERT INTO cart_items
-         (cart_id, product_id, category_id, unit, original_price, price, quantity, total, is_mega_offer)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+         (cart_id, product_id, category_id, unit, original_price, price, quantity, total, is_mega_offer,shop_id)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           cartId,
           product.id,
@@ -133,7 +151,8 @@ export const addCart = async (req, res) => {
           price,
           quantity,
           quantity * price,
-          isMegaOffer
+          isMegaOffer,
+           product.shop_id
         ]
       );
     }
@@ -201,6 +220,7 @@ export const getCart = async (req, res) => {
       `SELECT
         ci.id AS cart_item_id,
         ci.product_id,
+        ci.shop_id,
         ci.is_mega_offer,
 
        
