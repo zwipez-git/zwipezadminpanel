@@ -56,9 +56,9 @@ export const initTables = async () => {
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+  shop_id INT REFERENCES shops(shop_id), 
   original_price NUMERIC(10,2),
   price NUMERIC(10,2),
- 
   unit VARCHAR(50),
   description TEXT,
   image_url TEXT,
@@ -102,7 +102,9 @@ ADD COLUMN IF NOT EXISTS shop_id INT REFERENCES shops(shop_id);
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    
+    await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS shop_id INTEGER;
+    `);
 
 // For Mobile Aplications
 
@@ -354,6 +356,30 @@ ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 await pool.query(`
   ALTER TABLE orders 
   ADD COLUMN IF NOT EXISTS shop_id INT;
+`);
+
+// shop owner accepts/rejects (separate tables, per shop_id)
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS shop_order_accepts (
+    id SERIAL PRIMARY KEY,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    accepted_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(shop_id, order_id)
+  );
+`);
+
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS shop_order_rejects (
+    id SERIAL PRIMARY KEY,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    reason TEXT,
+    rejected_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(shop_id, order_id)
+  );
 `);
 // shop owner add product
 await pool.query(`
