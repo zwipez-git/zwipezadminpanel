@@ -14,11 +14,14 @@ let pool;
 if (process.env.DATABASE_URL) {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-    // ssl: false,
-  });
+    // ssl: {
+    //   rejectUnauthorized: false,
+    // },
+    // // ssl: false,
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false
+});
 } else {
   // Local DB config
   pool = new Pool({
@@ -27,10 +30,15 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 5432,
-   ssl: {
-    rejectUnauthorized: false, 
-  },
-  // ssl: false,
+  //  ssl: {
+  //   rejectUnauthorized: false, 
+  // },
+  // // ssl: false,
+
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false
+
   });
 }
 
