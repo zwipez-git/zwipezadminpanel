@@ -11,20 +11,31 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [shopId, setShopId] = useState("");
 
   const handleSignup = async () => {
     setError("");
     setMsg("");
-
+console.log("API URL:", API_BASE_URL);
     const usernameTrim = username.trim();
     const emailTrim = email.trim();
     const passwordTrim = password.trim();
+    const shopIdTrim = shopId.toString().trim();
 
-    if (!usernameTrim || !emailTrim || !passwordTrim) {
+    if (!usernameTrim || !emailTrim || !passwordTrim || !shopIdTrim) {
       setError("All fields are required.");
       return;
     }
+if (!/^\d+$/.test(shopIdTrim)) {
+  setError("Shop ID must be a valid number.");
+  return;
+}
 
+// Positive check
+if (Number(shopIdTrim) <= 0) {
+  setError("Shop ID must be greater than 0.");
+  return;
+}
     try {
       setLoading(true); 
 
@@ -35,6 +46,7 @@ export default function Signup() {
           name: usernameTrim,
           email: emailTrim,
           password: passwordTrim,
+          shop_id: Number(shopIdTrim),
         }),
       });
 
@@ -44,6 +56,7 @@ export default function Signup() {
         setMsg("Signup successful! Wait for role assignment.");
         setUsername("");
         setEmail("");
+        setShopId("");
         setPassword("");
       } else {
         setError(data.error || "Signup failed");
@@ -91,6 +104,20 @@ export default function Signup() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border rounded mb-4"
+        />
+        <input
+          type="text"
+          placeholder="Shop ID"
+          value={shopId}
+          onChange={(e) => {
+          const value = e.target.value;
+
+          // Allow only digits
+          if (/^\d*$/.test(value)) {
+          setShopId(value);
+          }
+          }}
           className="w-full p-3 border rounded mb-4"
         />
 

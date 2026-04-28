@@ -1,19 +1,71 @@
 import bcrypt from "bcrypt";
 import pool from "../db/db.js";
 
+// export const signup = async (req, res) => {
+//   try{
+//   const { name, email, password, shop_id  } = req.body;
+//   console.log("REQ BODY:", req.body); 
+//     // Validation
+//     if (!name || !email || !password || !shop_id) {
+//       return res.status(400).json({ error: "All fields required" });
+//     }
+
+//   // Only numbers (no letters, no spaces)
+// if (!/^\d+$/.test(shop_id)) {
+//   return res.status(400).json({ error: "Shop ID must be a valid number" });
+// }
+
+// if (Number(shop_id) <= 0) {
+//   return res.status(400).json({ error: "Shop ID must be greater than 0" });
+// }
+
+//   const hashedPassword = await bcrypt.hash(password, 10);
+
+//   const result = await pool.query(
+//     `INSERT INTO users (name, email, password, shop_id)
+//      VALUES ($1,$2,$3,$4)
+//      RETURNING id,name,email,role`,
+//     [name, email, hashedPassword, shop_id]
+//   );
+
+//   res.status(201).json({ user: result.rows[0] });
+// } catch (err) {
+//     console.error("SIGNUP ERROR:", err); // 🔥 NOW YOU WILL SEE ERROR
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    console.log("SIGNUP HIT"); // 🔥
 
-  const result = await pool.query(
-    `INSERT INTO users (name, email, password)
-     VALUES ($1,$2,$3)
-     RETURNING id,name,email,role`,
-    [name, email, hashedPassword]
-  );
+    const { name, email, password, shop_id } = req.body;
+    console.log("REQ BODY:", req.body); // 🔥
 
-  res.status(201).json({ user: result.rows[0] });
+    if (!name || !email || !password || !shop_id) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+
+    if (!/^\d+$/.test(shop_id)) {
+      return res.status(400).json({ error: "Shop ID must be number" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password, shop_id)
+       VALUES ($1,$2,$3,$4)
+       RETURNING id,name,email,role`,
+      [name, email, hashedPassword, Number(shop_id)]
+    );
+
+    res.status(201).json({ user: result.rows[0] });
+
+  } catch (err) {
+    console.error("❌ SIGNUP ERROR:", err.message); // 🔥 CRITICAL
+    res.status(500).json({ error: err.message });
+  }
 };
+
 
 export const getAdminsList = async (req, res) => {
   const result = await pool.query(
