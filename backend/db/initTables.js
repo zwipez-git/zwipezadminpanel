@@ -428,7 +428,7 @@ CREATE TABLE IF NOT EXISTS shop_products (
     console.log(" All tables created ");
   } catch (error) {
     console.error("Table creation failed:", error.message);
-    process.exit(1);
+    // process.exit(1);
   }
 
 };
