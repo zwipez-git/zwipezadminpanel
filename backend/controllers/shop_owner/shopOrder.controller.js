@@ -217,7 +217,7 @@ export const acceptShopOrder = async (req, res) => {
       shopId: auth.shopId,
       orderId: Number(order_id),
       fromStatus: "CREATED",
-      toStatus: "PREPARING",
+      toStatus: "ACCEPTED",
       shopAction: "ACCEPTED",
       logTable: "shop_order_accepts",
       logColumns: [],
