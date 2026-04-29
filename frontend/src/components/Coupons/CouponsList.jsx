@@ -8,14 +8,27 @@ function CouponsList({activeForm}) {
 
 const [coupons,setCoupons] = useState([]);
 
-useEffect(()=>{
+// useEffect(()=>{
 
-fetch(`${API_BASE_URL}/api/getCoupons`)
-.then(res=>res.json())
-.then(data=>setCoupons(data))
-.catch(err=>console.error(err));
+// fetch(`${API_BASE_URL}/api/getCoupons`)
+// .then(res=>res.json())
+// .then(data=>setCoupons(data))
+// .catch(err=>console.error(err));
 
-},[]);
+// },[]);
+useEffect(() => {
+  fetch(`${API_BASE_URL}/api/getCoupons`, {
+    headers: {
+      id: 1 // 👈 REQUIRED (your backend needs this)
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("API RESPONSE:", data); // 👈 debug
+      setCoupons(data.coupons || []);     // 👈 IMPORTANT FIX
+    })
+    .catch(err => console.error(err));
+}, []);
 
 return (
 
@@ -47,7 +60,7 @@ return (
 
 <tbody>
 
-{coupons.map((coupon)=> (
+{Array.isArray(coupons) && coupons.map((coupon)=> (
 
 <tr key={coupon.id} className="text-center ">
 
@@ -84,7 +97,7 @@ return (
 </tbody>
 
 </table>
-)};
+)}
 
 </div>
 
