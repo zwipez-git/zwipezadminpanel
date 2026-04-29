@@ -758,7 +758,7 @@ export const updateOrderStatus = async (req, res) => {
 
   try {
     const decoded = jwt.verify(accessToken, JWT_SECRET);
-    const shopId = decoded.shopId;
+    const shopId = decoded.shop_id;
 
     const orderCheck = await pool.query(
       `SELECT id, status FROM orders WHERE id=$1 AND shop_id=$2`,
@@ -788,10 +788,24 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // await pool.query(
+    //   `UPDATE orders SET status=$1 WHERE id=$2`,
+    //   [status, order_id]
+    // );
     await pool.query(
-      `UPDATE orders SET status=$1 WHERE id=$2`,
-      [status, order_id]
-    );
+  `UPDATE orders 
+   SET 
+     status = CASE 
+       WHEN $1 = 'ACCEPTED' THEN 'accepted'
+       WHEN $1 = 'PREPARING' THEN 'preparing'
+       WHEN $1 = 'READY' THEN 'ready'
+       WHEN $1 = 'CANCELLED' THEN 'cancelled'
+       ELSE status
+     END,
+     shop_action = $1
+   WHERE id = $2`,
+  [status, order_id]
+);
 
     res.json({
       message: "Order status updated",
