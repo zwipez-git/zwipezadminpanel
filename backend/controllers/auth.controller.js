@@ -225,6 +225,7 @@ const delivery = {
       phone_number,
       role,
       customerId,
+      shopId,
       deliveryId, 
     });
 

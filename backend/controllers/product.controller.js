@@ -3,6 +3,7 @@ import pool from "../db/db.js";
 //add products
 export const addProduct = async (req, res) => {
   try {
+    console.log("REQ BODY:", req.body);
     const {
       name,
       category_id,
@@ -19,8 +20,8 @@ export const addProduct = async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO products
-      (name, category_id,, original_price, price,  unit, description, image_url, is_active)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,)
+      (name, category_id, original_price, price, shop_id, unit, description, image_url, is_active)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
       RETURNING *
       `,
       [
@@ -28,6 +29,7 @@ export const addProduct = async (req, res) => {
         category_id,
         original_price,
         price,
+        shop_id, 
         // country,
         unit,
         description,
@@ -35,7 +37,7 @@ export const addProduct = async (req, res) => {
         is_active,
       ]
     );
-
+console.log("INSERT SUCCESS:", result.rows);
     res.status(201).json({
       message: "Product added successfully",
       product: result.rows[0],
@@ -139,12 +141,12 @@ export const updateProduct = async (req, res) => {
         category_id = $2,
         original_price = $3,
         price = $4,
-        shop_id=$10
-        unit = $5,
-        description = $6,
-        image_url = $7,
-        is_active = $8
-      WHERE id = $9
+        shop_id = $5,
+        unit = $6,
+        description = $7,
+        image_url = $8,
+        is_active = $9
+      WHERE id = $10
       RETURNING *
       `,
       [
