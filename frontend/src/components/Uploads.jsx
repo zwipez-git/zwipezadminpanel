@@ -93,6 +93,60 @@ function Uploads({ activeForm }) {
 };
 
 
+// const submitProduct = async () => {
+//   if (!productName || !categoryId)
+//     return alert("Fill required fields");
+
+//   try {
+//     setProductLoading(true);
+
+//     let imageUrl = "";
+//     if (productImage) {
+//       imageUrl = await uploadToCloudinary(productImage, "products");
+//       if (!imageUrl) return alert("Image upload failed");
+//     }
+
+  
+//       await fetch(`${API_BASE_URL}/api/products`, {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify({
+//     name: productName.trim(),
+//     category_id: Number(categoryId),
+//     original_price: Number(original_price),
+//     price: Number(price),
+//     shop_id: 1,
+//     // country,
+//     unit,
+//     description,
+//     image_url: imageUrl,
+//   }),
+// });
+
+    
+
+//     alert("Product added successfully");
+
+//     setProductName("");
+//     setCategoryId("");
+//       setOriginalPrice("");
+//     setPrice("");
+//     // setCountry("");
+//     setUnit("");
+//     setDescription("");
+//     setProductImage(null);
+//     setProductPreview("");
+
+//     const res = await fetch(`${API_BASE_URL}/api/get-products`);
+//     setProducts(await res.json());
+//   } catch (err) {
+//     console.error(err);
+//     alert("Something went wrong");
+//   } finally {
+//     setProductLoading(false);
+//   }
+// };
+
 const submitProduct = async () => {
   if (!productName || !categoryId)
     return alert("Fill required fields");
@@ -106,38 +160,46 @@ const submitProduct = async () => {
       if (!imageUrl) return alert("Image upload failed");
     }
 
-  
-      await fetch(`${API_BASE_URL}/api/products`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    name: productName.trim(),
-    category_id: Number(categoryId),
-    original_price: Number(original_price),
-    price: Number(price),
-    // country,
-    unit,
-    description,
-    image_url: imageUrl,
-  }),
-});
+    // ✅ First API call
+    const response = await fetch(`${API_BASE_URL}/api/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: productName.trim(),
+        category_id: Number(categoryId),
+        original_price: Number(original_price) || 0,
+        price: Number(price) || 0,
+        shop_id: 1,
+        unit,
+        description,
+        image_url: imageUrl,
+      }),
+    });
 
-    
+    const data = await response.json();
+    console.log("API RESPONSE:", data);
+
+    if (!response.ok) {
+      alert("Error: " + data.error);
+      return;
+    }
 
     alert("Product added successfully");
 
+    // reset form
     setProductName("");
     setCategoryId("");
-      setOriginalPrice("");
+    setOriginalPrice("");
     setPrice("");
-    // setCountry("");
     setUnit("");
     setDescription("");
     setProductImage(null);
     setProductPreview("");
 
-    const res = await fetch(`${API_BASE_URL}/api/get-products`);
-    setProducts(await res.json());
+    // ✅ Second API call (different variable name)
+    const res2 = await fetch(`${API_BASE_URL}/api/get-products`);
+    setProducts(await res2.json());
+
   } catch (err) {
     console.error(err);
     alert("Something went wrong");
@@ -145,8 +207,6 @@ const submitProduct = async () => {
     setProductLoading(false);
   }
 };
-
-
 const submitBanner = async () => {
   if (!bannerName.trim()) return alert("Enter banner name");
   if (!bannerImage) return alert("Select banner image");
