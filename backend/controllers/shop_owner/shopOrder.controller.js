@@ -72,6 +72,7 @@ const fetchShopOrders = async (shopId) => {
       o.customer_id,
       o.grand_total,
       o.status,
+      o.shop_action,
       o.created_at,
       o.shop_id,
       json_agg(
@@ -89,7 +90,11 @@ const fetchShopOrders = async (shopId) => {
     [shopId]
   );
 
-  const newOrders = result.rows.filter((o) => o.status === "CREATED");
+  const newOrders = result.rows.filter(
+    (o) =>
+      o.status === "CREATED" &&
+      (o.shop_action === "PENDING" || o.shop_action === null)
+  );
   const preparing = result.rows.filter((o) => o.status === "PREPARING");
   const readyForPickup = result.rows.filter(
     (o) => o.status === "READY" || o.status === "READY_FOR_PICKUP"
@@ -108,6 +113,7 @@ const updateOrderStatusWithLog = async ({
   orderId,
   fromStatus,
   toStatus,
+  shopAction,
   logTable,
   logColumns,
   logValues,
@@ -133,10 +139,13 @@ const updateOrderStatusWithLog = async ({
       };
     }
 
-    await client.query(`UPDATE orders SET status = $1 WHERE id = $2`, [
-      toStatus,
-      orderId,
-    ]);
+    await client.query(
+      `UPDATE orders 
+       SET status = $1, 
+           shop_action = COALESCE($2, shop_action)
+       WHERE id = $3`,
+      [toStatus, shopAction || null, orderId]
+    );
 
     if (logTable) {
       // ensure only one decision row per order+shop
@@ -209,6 +218,7 @@ export const acceptShopOrder = async (req, res) => {
       orderId: Number(order_id),
       fromStatus: "CREATED",
       toStatus: "PREPARING",
+      shopAction: "ACCEPTED",
       logTable: "shop_order_accepts",
       logColumns: [],
       logValues: [],
@@ -252,6 +262,7 @@ export const rejectShopOrder = async (req, res) => {
       orderId: Number(order_id),
       fromStatus: "CREATED",
       toStatus: "CANCELLED",
+      shopAction: "REJECTED",
       logTable: "shop_order_rejects",
       logColumns: ["reason"],
       logValues: [reason || null],
@@ -293,6 +304,7 @@ export const markShopOrderReadyForPickup = async (req, res) => {
       orderId: Number(order_id),
       fromStatus: "PREPARING",
       toStatus: "READY",
+      shopAction: null,
       logTable: null,
       logColumns: [],
       logValues: [],

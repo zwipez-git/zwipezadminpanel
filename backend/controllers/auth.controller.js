@@ -96,7 +96,13 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { phone_number, otp } = req.body;
-
+console.log("SHOP ID:", shopId);
+console.log("TOKEN PAYLOAD:", {
+  phone_number,
+  role,
+  customerId,
+  shop_id: shopId
+});
     if (!phone_number || !otp)
       return res.status(400).json({ message: "Phone number & OTP required" });
 
@@ -225,7 +231,7 @@ const delivery = {
       phone_number,
       role,
       customerId,
-      shopId,
+      shop_id: shopId,
       deliveryId, 
     });
 
@@ -284,6 +290,7 @@ export const refreshToken = async (req, res) => {
 
     const newAccessToken = generateAccessToken({
       phone_number: tokenData.phone_number,
+      shop_id: tokenData.shop_id,
       role: tokenData.role,
       deliveryId,
     });

@@ -362,6 +362,15 @@ await pool.query(`
   ALTER TABLE orders 
   ADD COLUMN IF NOT EXISTS shop_id INT;
 `);
+await pool.query(`
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS shop_action VARCHAR(20) DEFAULT 'PENDING';
+`);
+await pool.query(`
+  UPDATE orders
+  SET shop_action = 'PENDING'
+  WHERE shop_action IS NULL;
+`);
 
 // shop owner accepts/rejects (separate tables, per shop_id)
 await pool.query(`
