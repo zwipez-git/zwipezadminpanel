@@ -96,7 +96,7 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { phone_number, otp } = req.body;
-console.log("SHOP ID:", shopId);
+
 console.log("TOKEN PAYLOAD:", {
   phone_number,
   role,
@@ -260,7 +260,7 @@ const delivery = {
      isNewUser: isNewDeliveryUser,
       accessToken,
       customerId,
-  shopId, 
+      shop_id: shopId, 
       refreshToken: plainRefreshToken,
       message: "Login successful",
     });
