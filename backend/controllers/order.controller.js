@@ -758,7 +758,7 @@ export const updateOrderStatus = async (req, res) => {
 
   try {
     const decoded = jwt.verify(accessToken, JWT_SECRET);
-    const shopId = decoded.shopId;
+    const shopId = decoded.shop_id;
 
     const orderCheck = await pool.query(
       `SELECT id, status FROM orders WHERE id=$1 AND shop_id=$2`,
