@@ -96,13 +96,6 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { phone_number, otp } = req.body;
-
-console.log("TOKEN PAYLOAD:", {
-  phone_number,
-  role,
-  customerId,
-  shop_id: shopId
-});
     if (!phone_number || !otp)
       return res.status(400).json({ message: "Phone number & OTP required" });
 
@@ -276,22 +269,57 @@ export const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token required" });
+    }
+
     const hash = hashToken(refreshToken);
 
     const result = await pool.query(
-      `SELECT * FROM refresh_tokens WHERE token_hash=$1`,
+      `SELECT phone_number, role
+       FROM refresh_tokens
+       WHERE token_hash=$1 AND expires_at > NOW()
+       LIMIT 1`,
       [hash]
     );
 
-    if (!result.rows.length)
-      return res.status(401).json({ message: "Invalid refresh token" });
+    if (!result.rows.length) {
+      return res.status(401).json({ message: "Invalid or expired refresh token" });
+    }
 
-    const tokenData = result.rows[0];
+    const { phone_number, role } = result.rows[0];
+
+    // refresh_tokens table stores only phone_number + role,
+    // so we rebuild the ids from the DB on each refresh.
+    let customerId = null;
+    let shopId = null;
+    let deliveryId = null;
+
+    if (role === "customer") {
+      const customer = await pool.query(
+        `SELECT id FROM customers WHERE phone_number=$1`,
+        [phone_number]
+      );
+      customerId = customer.rows[0]?.id ?? null;
+    } else if (role === "shop_owner") {
+      const shop = await pool.query(
+        `SELECT shop_id FROM shops WHERE phone_number=$1`,
+        [phone_number]
+      );
+      shopId = shop.rows[0]?.shop_id ?? null;
+    } else if (role === "delivery_partner") {
+      const delivery = await pool.query(
+        `SELECT id FROM delivery_partners WHERE phone_number=$1`,
+        [phone_number]
+      );
+      deliveryId = delivery.rows[0]?.id ?? null;
+    }
 
     const newAccessToken = generateAccessToken({
-      phone_number: tokenData.phone_number,
-      shop_id: tokenData.shop_id,
-      role: tokenData.role,
+      phone_number,
+      role,
+      customerId,
+      shop_id: shopId,
       deliveryId,
     });
 
