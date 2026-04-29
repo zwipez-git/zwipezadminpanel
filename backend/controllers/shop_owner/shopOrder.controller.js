@@ -55,7 +55,7 @@ const getShopIdFromToken = (req) => {
   }
 
   const decoded = jwt.verify(accessToken, JWT_SECRET);
-  const shopId = decoded.shopId;
+  const shopId = decoded.shop_id;
 
   if (!shopId) {
     return { error: "Shop not found in token", code: 400 };
