@@ -177,7 +177,10 @@ const updateOrderStatusWithLog = async ({
     }
 const customerId = orderResult.rows[0].customer_id;
     const currentStatus = orderResult.rows[0].status;
-    if (currentStatus !== fromStatus) {
+    // if (currentStatus !== fromStatus) 
+    if (
+  currentStatus?.toUpperCase() !== fromStatus?.toUpperCase()
+){
       return {
         error: `Only ${fromStatus} orders can move to ${toStatus}`,
         code: 400,
