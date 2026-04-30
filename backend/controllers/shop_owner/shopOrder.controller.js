@@ -265,7 +265,8 @@ export const acceptShopOrder = async (req, res) => {
     const result = await updateOrderStatusWithLog({
       shopId: auth.shopId,
       orderId: Number(order_id),
-      fromStatus: "CREATED",
+      // fromStatus: "CREATED",
+      fromStatus: "CONFIRMED",
       // toStatus: "ACCEPTED",
       toStatus: "PREPARING",
       shopAction: "ACCEPTED",
