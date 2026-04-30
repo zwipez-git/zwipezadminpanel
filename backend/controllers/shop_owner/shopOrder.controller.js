@@ -64,41 +64,83 @@ const getShopIdFromToken = (req) => {
   return { shopId };
 };
 
+// const fetchShopOrders = async (shopId) => {
+//   const result = await pool.query(
+//     `SELECT 
+//       o.id,
+//       o.order_number,
+//       o.customer_id,
+//       o.grand_total,
+//       o.status,
+//       o.shop_action,
+//       o.created_at,
+//       o.shop_id,
+//       json_agg(
+//         json_build_object(
+//           'name', p.name,
+//           'quantity', oi.quantity
+//         )
+//       ) AS items
+//      FROM orders o
+//      JOIN order_items oi ON oi.order_id = o.id
+//      JOIN products p ON p.id = oi.product_id
+//      WHERE o.shop_id = $1
+//      GROUP BY o.id
+//      ORDER BY o.created_at DESC`,
+//     [shopId]
+//   );
 const fetchShopOrders = async (shopId) => {
   const result = await pool.query(
     `SELECT 
-      o.id,
-      o.order_number,
-      o.customer_id,
-      o.grand_total,
-      o.status,
-      o.shop_action,
-      o.created_at,
-      o.shop_id,
-      json_agg(
-        json_build_object(
-          'name', p.name,
-          'quantity', oi.quantity
-        )
+      o.*,
+
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'product_name', p.name,
+            'quantity', oi.quantity,
+            'price', oi.price
+          )
+        ) FILTER (WHERE oi.id IS NOT NULL),
+        '[]'
       ) AS items
+
      FROM orders o
-     JOIN order_items oi ON oi.order_id = o.id
-     JOIN products p ON p.id = oi.product_id
+     LEFT JOIN order_items oi ON oi.order_id = o.id
+     LEFT JOIN products p ON p.id = oi.product_id
+     LEFT JOIN customers c ON c.id = o.customer_id
      WHERE o.shop_id = $1
+
      GROUP BY o.id
      ORDER BY o.created_at DESC`,
     [shopId]
   );
 
+  // const newOrders = result.rows.filter(
+  //   (o) =>
+  //     o.status === "CREATED" &&
+  //     (o.shop_action === "PENDING" || o.shop_action === null)
+  // );
+  // const preparing = result.rows.filter((o) => o.status === "PREPARING");
+  // const readyForPickup = result.rows.filter(
+  //   (o) => o.status === "READY" || o.status === "READY_FOR_PICKUP"
+  // );
   const newOrders = result.rows.filter(
-    (o) =>
-      o.status === "CREATED" &&
-      (o.shop_action === "PENDING" || o.shop_action === null)
-  );
-  const preparing = result.rows.filter((o) => o.status === "PREPARING");
-  const readyForPickup = result.rows.filter(
-    (o) => o.status === "READY" || o.status === "READY_FOR_PICKUP"
-  );
+  (o) =>
+    o.status?.toUpperCase() === "CREATED" &&
+    (!o.shop_action || o.shop_action === "PENDING")
+);
+
+const preparing = result.rows.filter(
+  (o) => o.status?.toUpperCase() === "PREPARING"
+);
+
+const readyForPickup = result.rows.filter(
+  (o) =>
+    ["READY", "READY_FOR_PICKUP"].includes(
+      o.status?.toUpperCase()
+    )
+);
 
   return {
     allOrders: result.rows,

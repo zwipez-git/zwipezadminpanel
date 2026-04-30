@@ -72,12 +72,12 @@ app.use("/api/delivery", deliveryRoutes);
 app.use("/api/ai", aiRoutes);
 // app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/devapiService/cloudinary", cloudinaryRoutes);
-app.use("/api/user", customerRoutes);
+// app.use("/api/user", customerRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/shop", shopOrderRoutes);
 app.use("/api/shop-owner", shopProductRoutes);
 app.use("/api", productRoutes);
-app.use("/api", OrderRoutes)
+// app.use("/api", OrderRoutes)
 
 const PORT = process.env.PORT || 5000;
 
