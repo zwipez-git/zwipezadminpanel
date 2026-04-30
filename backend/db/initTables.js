@@ -383,7 +383,10 @@ await pool.query(`
     UNIQUE(shop_id, order_id)
   );
 `);
-
+await pool.query(`
+ ALTER TABLE shop_order_accepts 
+ ADD COLUMN IF NOT EXISTS customer_id INT;
+`);
 await pool.query(`
   CREATE TABLE IF NOT EXISTS shop_order_rejects (
     id SERIAL PRIMARY KEY,

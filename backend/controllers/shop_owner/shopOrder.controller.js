@@ -123,14 +123,17 @@ const updateOrderStatusWithLog = async ({
     await client.query("BEGIN");
 
     const orderResult = await client.query(
-      `SELECT id, status FROM orders WHERE id = $1 AND shop_id = $2`,
+      // `SELECT id, status FROM orders WHERE id = $1 AND shop_id = $2`,
+      `SELECT id, status, customer_id 
+ FROM orders 
+ WHERE id = $1 AND shop_id = $2`,
       [orderId, shopId]
     );
 
     if (!orderResult.rows.length) {
       return { error: "Order not found", code: 404 };
     }
-
+const customerId = orderResult.rows[0].customer_id;
     const currentStatus = orderResult.rows[0].status;
     if (currentStatus !== fromStatus) {
       return {
@@ -149,10 +152,11 @@ const updateOrderStatusWithLog = async ({
 
     if (logTable) {
       // ensure only one decision row per order+shop
-      const cols = ["shop_id", "order_id", ...logColumns];
+      // const cols = ["shop_id", "order_id", ...logColumns];
+      const cols = ["shop_id", "order_id", "customer_id", ...logColumns];
       const placeholders = cols.map((_, idx) => `$${idx + 1}`).join(",");
-      const values = [shopId, orderId, ...logValues];
-
+      // const values = [shopId, orderId, ...logValues];
+const values = [shopId, orderId, customerId, ...logValues];
       await client.query(
         `INSERT INTO ${logTable} (${cols.join(",")})
          VALUES (${placeholders})
@@ -217,7 +221,8 @@ export const acceptShopOrder = async (req, res) => {
       shopId: auth.shopId,
       orderId: Number(order_id),
       fromStatus: "CREATED",
-      toStatus: "ACCEPTED",
+      // toStatus: "ACCEPTED",
+      toStatus: "PREPARING",
       shopAction: "ACCEPTED",
       logTable: "shop_order_accepts",
       logColumns: [],
