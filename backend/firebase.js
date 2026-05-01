@@ -1,14 +1,30 @@
 import admin from "firebase-admin";
 import fs from "fs";
 
-// 🔥 READ JSON FILE
-const serviceAccount = JSON.parse(
-  fs.readFileSync("./serviceAccountKey.json", "utf8")
-);
+let serviceAccount;
 
-// 🔥 INIT FIREBASE
+// ✅ RENDER / PRODUCTION
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+
+  serviceAccount = JSON.parse(
+    process.env.FIREBASE_SERVICE_ACCOUNT
+  );
+
+} else {
+
+  // ✅ LOCAL
+  serviceAccount = JSON.parse(
+    fs.readFileSync(
+      "./serviceAccountKey.json",
+      "utf8"
+    )
+  );
+}
+
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(
+    serviceAccount
+  ),
 });
 
 export default admin;
