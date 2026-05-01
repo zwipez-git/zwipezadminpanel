@@ -118,7 +118,10 @@ ADD COLUMN IF NOT EXISTS shop_id INT REFERENCES shops(shop_id);
   created_at TIMESTAMP DEFAULT NOW()
 );
 `)
-
+  await pool.query(`
+  ALTER TABLE customers
+  ADD COLUMN IF NOT EXISTS fcm_token TEXT;
+`);
 
     // // Alter the table
     // await pool.query(`
@@ -331,6 +334,10 @@ await pool.query(`
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `);
+ await pool.query(`
+  ALTER TABLE shops
+  ADD COLUMN IF NOT EXISTS fcm_token TEXT;
+`);
     // Delivery_partners
  await pool.query(`
   CREATE TABLE IF NOT EXISTS delivery_partners (
@@ -350,7 +357,10 @@ await pool.query(`
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `);
-
+await pool.query(`
+  ALTER TABLE delivery_partners
+  ADD COLUMN IF NOT EXISTS fcm_token TEXT;
+`);
     // ADD SHOP IMAGE + CERTIFICATE (SAFE)
     await pool.query(`
   ALTER TABLE shops
