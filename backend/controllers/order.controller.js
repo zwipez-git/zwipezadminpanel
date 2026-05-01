@@ -1,5 +1,6 @@
 import pool from '../db/db.js';
 import jwt from "jsonwebtoken";
+import admin from "../firebase.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "please-set-a-secret";
 
@@ -490,7 +491,41 @@ await client.query(
       );
 
       await client.query("COMMIT");
+// 🔥 GET SHOP FCM TOKEN
+const tokenRes = await pool.query(
+  `
+  SELECT fcm_token
+  FROM shops
+  WHERE shop_id = $1
+  `,
+  [shop_id]
+);
 
+const shopFcmToken =
+  tokenRes.rows[0]?.fcm_token;
+
+console.log("SHOP TOKEN =>", shopFcmToken);
+
+// 🔥 SEND PUSH NOTIFICATION
+if (shopFcmToken) {
+
+  await admin.messaging().send({
+    token: shopFcmToken,
+
+    notification: {
+      title: "🛒 New Order",
+      body: `Order ${orderNumber} received`,
+    },
+
+    data: {
+      type: "new_order",
+      order_id: orderId.toString(),
+      shop_id: shop_id.toString(),
+    },
+  });
+
+  console.log("✅ Push notification sent");
+}
       res.json({
         message: "Order placed successfully",
         order_id: orderId,
