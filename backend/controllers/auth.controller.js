@@ -344,3 +344,73 @@ export const getAllRefreshTokens = async (req, res) => {
   const result = await pool.query(`SELECT * FROM refresh_tokens`);
   res.json(result.rows);
 };
+
+//saveEcmToken
+
+export const saveFcmToken = async (req, res) => {
+  try {
+    const {
+      shop_id,
+      customer_id,
+      delivery_id,
+      fcm_token,
+      role,
+    } = req.body;
+
+    // 🏪 SHOP OWNER
+    if (role === "shop_owner") {
+      await pool.query(
+        `
+        UPDATE shops
+        SET fcm_token = $1
+        WHERE shop_id = $2
+        `,
+        [fcm_token, shop_id]
+      );
+    }
+
+    // 👤 CUSTOMER
+    else if (role === "customer") {
+      await pool.query(
+        `
+        UPDATE customers
+        SET fcm_token = $1
+        WHERE id = $2
+        `,
+        [fcm_token, customer_id]
+      );
+    }
+
+    // 🚚 DELIVERY PARTNER
+    else if (role === "delivery_partner") {
+      await pool.query(
+        `
+        UPDATE delivery_partners
+        SET fcm_token = $1
+        WHERE id = $2
+        `,
+        [fcm_token, delivery_id]
+      );
+    }
+
+    else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "FCM token saved successfully",
+    });
+
+  } catch (error) {
+    console.log("SAVE FCM TOKEN ERROR =>", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to save FCM token",
+    });
+  }
+};
