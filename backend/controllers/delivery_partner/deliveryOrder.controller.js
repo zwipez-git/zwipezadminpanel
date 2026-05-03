@@ -59,7 +59,11 @@ export const acceptDeliveryPartnerOrder = async (req, res) => {
       .status(403)
       .json({ status: 0, message: "Delivery partner access only" });
   }
+console.log("🔥 ACCEPT API HIT");
 
+console.log(req.body);
+
+console.log(req.user);
   const deliveryPartnerId = req.user.deliveryId;
   if (!deliveryPartnerId) {
     return res.status(400).json({
