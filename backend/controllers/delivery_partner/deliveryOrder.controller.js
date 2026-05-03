@@ -51,3 +51,121 @@ export const getShopAcceptedOrders = async (req, res) => {
     return res.status(500).json({ status: 0, message: "Server error" });
   }
 };
+
+/// Delivery partner accepts / claims an order (must exist in shop_order_accepts). Amounts are copied from orders.
+export const acceptDeliveryPartnerOrder = async (req, res) => {
+  if (req.user?.role !== "delivery_partner") {
+    return res
+      .status(403)
+      .json({ status: 0, message: "Delivery partner access only" });
+  }
+
+  const deliveryPartnerId = req.user.deliveryId;
+  if (!deliveryPartnerId) {
+    return res.status(400).json({
+      status: 0,
+      message: "Complete delivery registration before accepting orders",
+    });
+  }
+
+  const orderIdRaw = req.body?.order_id ?? req.body?.orderId;
+  const order_id = Number(orderIdRaw);
+  if (!orderIdRaw || Number.isNaN(order_id)) {
+    return res.status(400).json({ status: 0, message: "order_id required" });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const orderLock = await client.query(
+      `SELECT id, shop_id, customer_id FROM orders WHERE id = $1 FOR UPDATE`,
+      [order_id]
+    );
+
+    if (!orderLock.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ status: 0, message: "Order not found" });
+    }
+
+    const { shop_id } = orderLock.rows[0];
+
+    const shopAccepted = await client.query(
+      `SELECT 1 FROM shop_order_accepts
+       WHERE order_id = $1 AND shop_id = $2`,
+      [order_id, shop_id]
+    );
+
+    if (!shopAccepted.rows.length) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        status: 0,
+        message: "Shop has not accepted this order yet",
+      });
+    }
+
+    const insertResult = await client.query(
+      `INSERT INTO delivery_partner_order_accepts (
+        delivery_partner_id, order_id, shop_id, customer_id,
+        order_number, total_amount, tax, discount, delivery_charge, grand_total,
+        coupon_code, payment_method, address, instructions
+      )
+      SELECT
+        $1,
+        o.id,
+        o.shop_id,
+        o.customer_id,
+        o.order_number,
+        o.total_amount,
+        COALESCE(o.tax, 0),
+        COALESCE(o.discount, 0),
+        COALESCE(o.delivery_charge, 0),
+        o.grand_total,
+        o.coupon_code,
+        o.payment_method,
+        o.address,
+        o.instructions
+      FROM orders o
+      WHERE o.id = $2
+      ON CONFLICT (order_id) DO NOTHING
+      RETURNING *`,
+      [deliveryPartnerId, order_id]
+    );
+
+    if (insertResult.rows.length > 0) {
+      await client.query("COMMIT");
+      return res.status(201).json({
+        status: 1,
+        message: "Order accepted",
+        data: insertResult.rows[0],
+      });
+    }
+
+    const existing = await client.query(
+      `SELECT * FROM delivery_partner_order_accepts WHERE order_id = $1`,
+      [order_id]
+    );
+
+    await client.query("COMMIT");
+
+    const row = existing.rows[0];
+    if (Number(row.delivery_partner_id) === Number(deliveryPartnerId)) {
+      return res.json({
+        status: 1,
+        message: "Already accepted by you",
+        data: row,
+      });
+    }
+
+    return res.status(409).json({
+      status: 0,
+      message: "Order already assigned to another delivery partner",
+    });
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.error("Delivery accept order error:", err);
+    return res.status(500).json({ status: 0, message: "Server error" });
+  } finally {
+    client.release();
+  }
+};

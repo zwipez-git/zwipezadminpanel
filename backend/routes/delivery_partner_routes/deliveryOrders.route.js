@@ -1,5 +1,8 @@
 import express from "express";
-import { getShopAcceptedOrders } from "../../controllers/delivery_partner/deliveryOrder.controller.js";
+import {
+  getShopAcceptedOrders,
+  acceptDeliveryPartnerOrder,
+} from "../../controllers/delivery_partner/deliveryOrder.controller.js";
 import { authMiddleware } from "../../controllers/auth.controller.js";
 
 const router = express.Router();
@@ -15,6 +18,12 @@ router.get(
   "/orders",
   authMiddleware(),
   getShopAcceptedOrders
+);
+
+router.post(
+  "/orders/accept",
+  authMiddleware(),
+  acceptDeliveryPartnerOrder
 );
 
 export default router;

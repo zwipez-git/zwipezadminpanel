@@ -381,6 +381,18 @@ await pool.query(`
   SET shop_action = 'PENDING'
   WHERE shop_action IS NULL;
 `);
+await pool.query(`
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS discount NUMERIC(10,2) DEFAULT 0;
+`);
+await pool.query(`
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(100);
+`);
+await pool.query(`
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS instructions TEXT;
+`);
 
 // shop owner accepts/rejects (separate tables, per shop_id)
 await pool.query(`
@@ -407,6 +419,30 @@ await pool.query(`
     rejected_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(shop_id, order_id)
+  );
+`);
+
+// delivery partner claims an order (snapshot of amounts + ids at accept time)
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS delivery_partner_order_accepts (
+    id SERIAL PRIMARY KEY,
+    delivery_partner_id INT NOT NULL REFERENCES delivery_partners(id) ON DELETE CASCADE,
+    order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+    customer_id INT NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+    order_number VARCHAR(40),
+    total_amount NUMERIC(10,2) NOT NULL,
+    tax NUMERIC(10,2) DEFAULT 0,
+    discount NUMERIC(10,2) DEFAULT 0,
+    delivery_charge NUMERIC(10,2) DEFAULT 0,
+    grand_total NUMERIC(10,2) NOT NULL,
+    coupon_code VARCHAR(100),
+    payment_method VARCHAR(80),
+    address TEXT,
+    instructions TEXT,
+    accepted_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(order_id)
   );
 `);
 
