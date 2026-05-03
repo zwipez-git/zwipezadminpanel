@@ -64,7 +64,9 @@ console.log("🔥 ACCEPT API HIT");
 console.log(req.body);
 
 console.log(req.user);
-  const deliveryPartnerId = req.user.deliveryId;
+  // const deliveryPartnerId = req.user.deliveryId;
+  const deliveryPartnerId =
+  req.user.deliveryId || req.user.id;
   if (!deliveryPartnerId) {
     return res.status(400).json({
       status: 0,
