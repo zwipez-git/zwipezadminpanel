@@ -25,7 +25,8 @@ import aiRoutes from "./routes/ai.route.js";
 import shopRoutes from "./routes/shop_owner_routes/shop.routes.js";
 import shopOrderRoutes from "./routes/shop_owner_routes/shopOrders.route.js";
 import shopProductRoutes from "./routes/shop_owner_routes/shopProduct.routes.js";
-
+import deliveryPartnerOrderRoutes from "./routes/delivery_partner_routes/deliveryOrders.route.js";
+console.log("🔥 NEW SERVER FILE RUNNING");
 dotenv.config();
 
 const app = express();
@@ -69,6 +70,7 @@ app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/api/user", customerRoutes);
 // app.use("/api/shops", shopRoutes);
 app.use("/api/delivery", deliveryRoutes);
+app.use("/api/delivery-partner", deliveryPartnerOrderRoutes);
 app.use("/api/ai", aiRoutes);
 // app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/devapiService/cloudinary", cloudinaryRoutes);
