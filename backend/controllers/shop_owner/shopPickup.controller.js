@@ -88,6 +88,34 @@ export const createOrRefreshPickupOtp = async (req, res) => {
 export const getPickupOtpStatus = async (req, res) => {
   try {
     const auth = getShopIdFromToken(req);
+    const getDeliveryIdFromToken = (req) => {
+  const accessToken =
+    req.headers.accesstoken ||
+    req.headers.authorization?.split(" ")[1];
+
+  if (!accessToken) {
+    return {
+      error: "Access token required",
+      code: 401,
+    };
+  }
+
+  const decoded = jwt.verify(
+    accessToken,
+    JWT_SECRET
+  );
+
+  const deliveryId = decoded.deliveryId;
+
+  if (!deliveryId) {
+    return {
+      error: "Delivery partner not found in token",
+      code: 400,
+    };
+  }
+
+  return { deliveryId };
+};
     if (auth.error) {
       return res.status(auth.code).json({ status: 0, message: auth.error });
     }
@@ -136,7 +164,8 @@ export const getPickupOtpStatus = async (req, res) => {
 export const verifyPickupOtpAndMarkPickedUp = async (req, res) => {
   const client = await pool.connect();
   try {
-    const auth = getShopIdFromToken(req);
+    // const auth = getShopIdFromToken(req);
+    const auth = getDeliveryIdFromToken(req);
     if (auth.error) {
       return res.status(auth.code).json({ status: 0, message: auth.error });
     }
@@ -156,9 +185,9 @@ export const verifyPickupOtpAndMarkPickedUp = async (req, res) => {
     const orderResult = await client.query(
       `SELECT id, status
        FROM orders
-       WHERE id = $1 AND shop_id = $2
+      WHERE id = $1
        FOR UPDATE`,
-      [Number(order_id), auth.shopId]
+      [Number(order_id)]
     );
 
     if (!orderResult.rows.length) {
@@ -178,9 +207,9 @@ export const verifyPickupOtpAndMarkPickedUp = async (req, res) => {
     const otpResult = await client.query(
       `SELECT id, otp, expires_at, verified_at
        FROM order_pickup_otps
-       WHERE order_id = $1 AND shop_id = $2
+       WHERE order_id = $1
        FOR UPDATE`,
-      [Number(order_id), auth.shopId]
+      [Number(order_id)]
     );
 
     if (!otpResult.rows.length) {
@@ -217,17 +246,17 @@ export const verifyPickupOtpAndMarkPickedUp = async (req, res) => {
     await client.query(
       `UPDATE order_pickup_otps
        SET verified_at = NOW(),
-           verified_by_shop_id = $2,
+          
            updated_at = NOW()
        WHERE order_id = $1`,
-      [Number(order_id), auth.shopId]
+      [Number(order_id)]
     );
 
     await client.query(
       `UPDATE orders
        SET status = 'PICKED_UP'
-       WHERE id = $1 AND shop_id = $2`,
-      [Number(order_id), auth.shopId]
+       WHERE id = $1`,
+      [Number(order_id)]
     );
 
     await client.query("COMMIT");
