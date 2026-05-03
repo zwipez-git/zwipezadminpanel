@@ -4,6 +4,17 @@ import { authMiddleware } from "../../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.get("/orders", authMiddleware(), getShopAcceptedOrders);
+router.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "delivery route working"
+  });
+});
+
+router.get(
+  "/orders",
+  authMiddleware(),
+  getShopAcceptedOrders
+);
 
 export default router;
