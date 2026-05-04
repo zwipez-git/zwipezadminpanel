@@ -445,6 +445,19 @@ await pool.query(`
     UNIQUE(order_id)
   );
 `);
+await pool.query(`
+  ALTER TABLE delivery_partner_order_accepts
+  ADD COLUMN IF NOT EXISTS delivery_outcome VARCHAR(20) DEFAULT 'PENDING';
+`);
+await pool.query(`
+  ALTER TABLE delivery_partner_order_accepts
+  ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP;
+`);
+await pool.query(`
+  UPDATE delivery_partner_order_accepts
+  SET delivery_outcome = 'PENDING'
+  WHERE delivery_outcome IS NULL;
+`);
 
 await pool.query(`
   CREATE TABLE IF NOT EXISTS order_pickup_otps (

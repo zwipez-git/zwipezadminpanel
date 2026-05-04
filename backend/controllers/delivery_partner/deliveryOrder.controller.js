@@ -175,3 +175,71 @@ console.log(req.user);
     client.release();
   }
 };
+
+/// Mark delivery result as delivery/refund for claimed order
+export const markDeliveryOutcome = async (req, res) => {
+  try {
+    if (req.user?.role !== "delivery_partner") {
+      return res
+        .status(403)
+        .json({ status: 0, message: "Delivery partner access only" });
+    }
+
+    const deliveryPartnerId = req.user.deliveryId || req.user.id;
+    if (!deliveryPartnerId) {
+      return res.status(400).json({
+        status: 0,
+        message: "Complete delivery registration before updating order",
+      });
+    }
+
+    const orderIdRaw = req.body?.order_id ?? req.body?.orderId;
+    const order_id = Number(orderIdRaw);
+    const outcomeRaw = req.body?.outcome ?? req.body?.delivery_outcome;
+    const delivery_outcome = String(outcomeRaw || "")
+      .trim()
+      .toUpperCase();
+
+    if (!orderIdRaw || Number.isNaN(order_id)) {
+      return res.status(400).json({ status: 0, message: "order_id required" });
+    }
+
+    if (!["DELIVERY", "REFUND"].includes(delivery_outcome)) {
+      return res.status(400).json({
+        status: 0,
+        message: "outcome must be DELIVERY or REFUND",
+      });
+    }
+
+    const updated = await pool.query(
+      `UPDATE delivery_partner_order_accepts
+       SET delivery_outcome = $1,
+           delivered_at = NOW(),
+           updated_at = NOW()
+       WHERE order_id = $2
+         AND delivery_partner_id = $3
+       RETURNING *`,
+      [delivery_outcome, order_id, deliveryPartnerId]
+    );
+
+    if (!updated.rows.length) {
+      return res.status(404).json({
+        status: 0,
+        message: "Order not found for this delivery partner",
+      });
+    }
+
+    await pool.query(`UPDATE orders SET status = 'COMPLETED' WHERE id = $1`, [
+      order_id,
+    ]);
+
+    return res.json({
+      status: 1,
+      message: "Delivery outcome updated",
+      data: updated.rows[0],
+    });
+  } catch (err) {
+    console.error("Delivery outcome update error:", err);
+    return res.status(500).json({ status: 0, message: "Server error" });
+  }
+};

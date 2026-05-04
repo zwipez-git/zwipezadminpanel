@@ -93,6 +93,13 @@ const fetchShopOrders = async (shopId) => {
   const result = await pool.query(
     `SELECT 
       o.*,
+      dpoa.delivery_partner_id,
+      dpoa.delivery_outcome,
+      dpoa.delivered_at,
+      CASE
+        WHEN dpoa.delivery_outcome = 'REFUND' THEN NULL
+        ELSE o.grand_total
+      END AS payout_amount,
 
       COALESCE(
         json_agg(
@@ -109,9 +116,10 @@ const fetchShopOrders = async (shopId) => {
      LEFT JOIN order_items oi ON oi.order_id = o.id
      LEFT JOIN products p ON p.id = oi.product_id
      LEFT JOIN customers c ON c.id = o.customer_id
+     LEFT JOIN delivery_partner_order_accepts dpoa ON dpoa.order_id = o.id
      WHERE o.shop_id = $1
 
-     GROUP BY o.id
+     GROUP BY o.id, dpoa.id
      ORDER BY o.created_at DESC`,
     [shopId]
   );

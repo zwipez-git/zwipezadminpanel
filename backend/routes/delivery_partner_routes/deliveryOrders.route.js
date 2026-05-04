@@ -2,6 +2,7 @@ import express from "express";
 import {
   getShopAcceptedOrders,
   acceptDeliveryPartnerOrder,
+  markDeliveryOutcome,
 } from "../../controllers/delivery_partner/deliveryOrder.controller.js";
 import { authMiddleware } from "../../controllers/auth.controller.js";
 
@@ -24,6 +25,12 @@ router.post(
   "/orders/accept",
   authMiddleware(),
   acceptDeliveryPartnerOrder
+);
+
+router.post(
+  "/orders/mark-outcome",
+  authMiddleware(),
+  markDeliveryOutcome
 );
 
 export default router;
