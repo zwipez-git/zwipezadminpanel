@@ -228,7 +228,6 @@ console.log(req.user);
      const updatedResult = await client.query(
   `UPDATE shop_order_accepts
    SET delivery_partner_accepted = true,
-       updated_at = NOW()
    WHERE order_id = $1
    RETURNING *`,
   [order_id]
