@@ -225,6 +225,13 @@ console.log(req.user);
     );
 
     if (insertResult.rows.length > 0) {
+      await client.query(
+  `UPDATE shop_order_accepts
+   SET delivery_partner_accepted = true,
+       updated_at = NOW()
+   WHERE order_id = $1`,
+  [order_id]
+);
       await client.query("COMMIT");
       return res.status(201).json({
         status: 1,
