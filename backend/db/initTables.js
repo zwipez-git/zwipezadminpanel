@@ -421,6 +421,10 @@ await pool.query(`
     UNIQUE(shop_id, order_id)
   );
 `);
+await pool.query(`
+ ALTER TABLE shop_order_rejects
+ ADD COLUMN IF NOT EXISTS customer_id INT;
+`);
 
 // delivery partner claims an order (snapshot of amounts + ids at accept time)
 await pool.query(`
