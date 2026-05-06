@@ -37,6 +37,7 @@ export const getShopAcceptedOrders = async (req, res) => {
        LEFT JOIN customers c ON c.id = o.customer_id
        LEFT JOIN order_items oi ON oi.order_id = o.id
        LEFT JOIN products p ON p.id = oi.product_id
+       WHERE COALESCE(soa.delivery_partner_accepted, false) = false
        GROUP BY o.id, soa.id, s.shop_id, c.id
        ORDER BY soa.accepted_at DESC`
     );
@@ -139,6 +140,14 @@ console.log(req.user);
     );
 
     if (insertResult.rows.length > 0) {
+      await client.query(
+        `UPDATE shop_order_accepts
+         SET delivery_partner_accepted = true,
+             updated_at = NOW()
+         WHERE order_id = $1 AND shop_id = $2`,
+        [order_id, shop_id]
+      );
+
       await client.query("COMMIT");
       return res.status(201).json({
         status: 1,
