@@ -103,12 +103,13 @@ export const getShopAcceptedOrders = async (req, res) => {
        INNER JOIN shops s
        ON s.shop_id = o.shop_id
 
-       INNER JOIN shop_order_accepts soa
+      
        ON soa.order_id = o.id
 
        LEFT JOIN customers c
        ON c.id = o.customer_id
-
+LEFT JOIN delivery_partner_order_accepts dpoa
+ON dpoa.order_id = o.id
        LEFT JOIN order_items oi
        ON oi.order_id = o.id
 
@@ -116,7 +117,8 @@ export const getShopAcceptedOrders = async (req, res) => {
        ON p.id = oi.product_id
 
        WHERE o.shop_action = 'ACCEPTED'
-       AND soa.delivery_partner_accepted = false
+AND dpoa.order_id IS NULL
+       
 
        GROUP BY o.id, s.shop_id, c.id, soa.delivery_partner_accepted
 
