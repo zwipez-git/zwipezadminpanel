@@ -234,6 +234,7 @@ console.log(req.user);
   [order_id]
 );
 
+console.log(updatedResult.rows);
 console.log("🔥 UPDATED SHOP ACCEPT:");
 console.log(updatedResult.rows);
       await client.query("COMMIT");
