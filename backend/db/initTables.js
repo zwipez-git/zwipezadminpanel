@@ -400,9 +400,6 @@ await pool.query(`
     id SERIAL PRIMARY KEY,
     shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
     order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    customer_id INT,
-
-    accepted BOOLEAN DEFAULT true,
     accepted_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(shop_id, order_id)
@@ -413,7 +410,6 @@ await pool.query(`
  ADD COLUMN IF NOT EXISTS customer_id INT;
  
 `);
-
 await pool.query(`
   CREATE TABLE IF NOT EXISTS shop_order_rejects (
     id SERIAL PRIMARY KEY,
@@ -425,7 +421,6 @@ await pool.query(`
     UNIQUE(shop_id, order_id)
   );
 `);
-
 
 // delivery partner claims an order (snapshot of amounts + ids at accept time)
 await pool.query(`
