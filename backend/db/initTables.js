@@ -411,6 +411,10 @@ await pool.query(`
  
 `);
 await pool.query(`
+ ALTER TABLE shop_order_accepts
+ ADD COLUMN IF NOT EXISTS delivery_partner_accepted BOOLEAN DEFAULT false;
+`);
+await pool.query(`
   CREATE TABLE IF NOT EXISTS shop_order_rejects (
     id SERIAL PRIMARY KEY,
     shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
