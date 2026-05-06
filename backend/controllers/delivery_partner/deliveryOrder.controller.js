@@ -165,12 +165,28 @@ console.log(req.user);
 
     const row = existing.rows[0];
     if (Number(row.delivery_partner_id) === Number(deliveryPartnerId)) {
+      await client.query(
+        `UPDATE shop_order_accepts
+         SET delivery_partner_accepted = true,
+             updated_at = NOW()
+         WHERE order_id = $1 AND shop_id = $2`,
+        [order_id, shop_id]
+      );
+
       return res.json({
         status: 1,
         message: "Already accepted by you",
         data: row,
       });
     }
+
+    await client.query(
+      `UPDATE shop_order_accepts
+       SET delivery_partner_accepted = true,
+           updated_at = NOW()
+       WHERE order_id = $1 AND shop_id = $2`,
+      [order_id, shop_id]
+    );
 
     return res.status(409).json({
       status: 0,
