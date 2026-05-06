@@ -139,14 +139,18 @@ console.log(req.user);
       [deliveryPartnerId, order_id]
     );
 
-    if (insertResult.rows.length > 0) {
+    const markShopOrderAccepted = async () => {
       await client.query(
         `UPDATE shop_order_accepts
          SET delivery_partner_accepted = true,
              updated_at = NOW()
-         WHERE order_id = $1 AND shop_id = $2`,
-        [order_id, shop_id]
+         WHERE order_id = $1`,
+        [order_id]
       );
+    };
+
+    if (insertResult.rows.length > 0) {
+      await markShopOrderAccepted();
 
       await client.query("COMMIT");
       return res.status(201).json({
@@ -161,17 +165,10 @@ console.log(req.user);
       [order_id]
     );
 
-    await client.query("COMMIT");
-
     const row = existing.rows[0];
     if (Number(row.delivery_partner_id) === Number(deliveryPartnerId)) {
-      await client.query(
-        `UPDATE shop_order_accepts
-         SET delivery_partner_accepted = true,
-             updated_at = NOW()
-         WHERE order_id = $1 AND shop_id = $2`,
-        [order_id, shop_id]
-      );
+      await markShopOrderAccepted();
+      await client.query("COMMIT");
 
       return res.json({
         status: 1,
@@ -180,13 +177,8 @@ console.log(req.user);
       });
     }
 
-    await client.query(
-      `UPDATE shop_order_accepts
-       SET delivery_partner_accepted = true,
-           updated_at = NOW()
-       WHERE order_id = $1 AND shop_id = $2`,
-      [order_id, shop_id]
-    );
+    await markShopOrderAccepted();
+    await client.query("COMMIT");
 
     return res.status(409).json({
       status: 0,
