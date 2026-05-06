@@ -1,4 +1,5 @@
 import pool from "../../db/db.js";
+import { storeDeliveredOrderSnapshot } from "./deliveryDeliveredOrder.controller.js";
 
 /// Orders that shops have accepted (rows in shop_order_accepts), with shop + line items
 export const getShopAcceptedOrders = async (req, res) => {
@@ -197,6 +198,7 @@ console.log(req.user);
 
 /// Mark delivery result as delivery/refund for claimed order
 export const markDeliveryOutcome = async (req, res) => {
+  const client = await pool.connect();
   try {
     if (req.user?.role !== "delivery_partner") {
       return res
@@ -230,7 +232,9 @@ export const markDeliveryOutcome = async (req, res) => {
       });
     }
 
-    const updated = await pool.query(
+    await client.query("BEGIN");
+
+    const updated = await client.query(
       `UPDATE delivery_partner_order_accepts
        SET delivery_outcome = $1,
            delivered_at = NOW(),
@@ -242,23 +246,37 @@ export const markDeliveryOutcome = async (req, res) => {
     );
 
     if (!updated.rows.length) {
+      await client.query("ROLLBACK");
       return res.status(404).json({
         status: 0,
         message: "Order not found for this delivery partner",
       });
     }
 
-    await pool.query(`UPDATE orders SET status = 'COMPLETED' WHERE id = $1`, [
+    const updatedOrderAccept = updated.rows[0];
+
+    await client.query(`UPDATE orders SET status = 'COMPLETED' WHERE id = $1`, [
       order_id,
     ]);
+
+    let deliveredSnapshot = null;
+    if (delivery_outcome === "DELIVERY") {
+      deliveredSnapshot = await storeDeliveredOrderSnapshot(client, updatedOrderAccept);
+    }
+
+    await client.query("COMMIT");
 
     return res.json({
       status: 1,
       message: "Delivery outcome updated",
-      data: updated.rows[0],
+      data: updatedOrderAccept,
+      delivered_order: deliveredSnapshot,
     });
   } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("Delivery outcome update error:", err);
     return res.status(500).json({ status: 0, message: "Server error" });
+  } finally {
+    client.release();
   }
 };
