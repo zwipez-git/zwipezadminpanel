@@ -86,7 +86,7 @@ console.log(req.user);
     await client.query("BEGIN");
 
     const orderLock = await client.query(
-      `SELECT id, shop_id, customer_id FROM orders WHERE id = $1 FOR UPDATE`,
+      `SELECT id, customer_id FROM orders WHERE id = $1 FOR UPDATE`,
       [order_id]
     );
 
@@ -95,12 +95,13 @@ console.log(req.user);
       return res.status(404).json({ status: 0, message: "Order not found" });
     }
 
-    const { shop_id } = orderLock.rows[0];
-
     const shopAccepted = await client.query(
-      `SELECT 1 FROM shop_order_accepts
-       WHERE order_id = $1 AND shop_id = $2`,
-      [order_id, shop_id]
+      `SELECT shop_id
+       FROM shop_order_accepts
+       WHERE order_id = $1
+       ORDER BY accepted_at DESC
+       LIMIT 1`,
+      [order_id]
     );
 
     if (!shopAccepted.rows.length) {
@@ -110,6 +111,7 @@ console.log(req.user);
         message: "Shop has not accepted this order yet",
       });
     }
+    const shop_id = shopAccepted.rows[0].shop_id;
 
     const insertResult = await client.query(
       `INSERT INTO delivery_partner_order_accepts (
@@ -120,7 +122,7 @@ console.log(req.user);
       SELECT
         $1,
         o.id,
-        o.shop_id,
+        $3,
         o.customer_id,
         o.order_number,
         o.total_amount,
@@ -136,7 +138,7 @@ console.log(req.user);
       WHERE o.id = $2
       ON CONFLICT (order_id) DO NOTHING
       RETURNING *`,
-      [deliveryPartnerId, order_id]
+      [deliveryPartnerId, order_id, shop_id]
     );
 
     const markShopOrderAccepted = async () => {
