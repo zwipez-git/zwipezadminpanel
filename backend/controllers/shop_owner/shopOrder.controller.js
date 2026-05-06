@@ -319,7 +319,8 @@ export const rejectShopOrder = async (req, res) => {
     const result = await updateOrderStatusWithLog({
       shopId: auth.shopId,
       orderId: Number(order_id),
-      fromStatus: "CREATED",
+      // fromStatus: "CREATED",
+      fromStatus: "CONFIRMED",
       toStatus: "CANCELLED",
       shopAction: "REJECTED",
       logTable: "shop_order_rejects",
