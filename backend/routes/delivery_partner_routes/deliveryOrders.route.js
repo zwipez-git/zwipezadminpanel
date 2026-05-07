@@ -31,6 +31,6 @@ router.post(
   "/orders/mark-outcome",
   authMiddleware(),
   markDeliveryOutcome
-);
+)
 
 export default router;

@@ -405,3 +405,30 @@ export const markShopOrderReadyForPickup = async (req, res) => {
     return res.status(500).json({ status: 0, message: "Server error" });
   }
 };
+export const getShopEarnings = async (req, res) => {
+  try {
+    const shopId = req.user.shopId;
+
+    const result = await pool.query(
+      `SELECT
+        COUNT(*) AS total_orders,
+        COALESCE(SUM(grand_total), 0) AS total_earnings
+       FROM delivery_partner_order_accepts
+       WHERE shop_id = $1`,
+      [shopId]
+    );
+
+    return res.json({
+      status: 1,
+      data: result.rows[0],
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      status: 0,
+      message: "Server error",
+    });
+  }
+};
