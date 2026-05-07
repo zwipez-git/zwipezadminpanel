@@ -431,27 +431,37 @@ export const getShopEarnings = async (req, res) => {
       message: "Server error",
     });
   }
-};
-export const getEarningsReport = async (req, res) => {
+};export const getEarningsReport = async (req, res) => {
   try {
-    const shopId = req.user.shopId;
+    const auth = getShopIdFromToken(req);
+
+    if (auth.error) {
+      return res
+        .status(auth.code)
+        .json({
+          status: 0,
+          message: auth.error,
+        });
+    }
 
     const { from, to } = req.query;
+
+    console.log("FROM =>", from);
+    console.log("TO =>", to);
+    console.log("SHOP ID =>", auth.shopId);
 
     const result = await pool.query(
       `SELECT
         order_id,
-        customer_id,
         payment_method,
         total_amount,
-        grand_total,
         status,
         accepted_at
        FROM delivery_partner_order_accepts
        WHERE shop_id = $1
        AND DATE(accepted_at) BETWEEN $2 AND $3
        ORDER BY accepted_at DESC`,
-      [shopId, from, to]
+      [auth.shopId, from, to]
     );
 
     return res.json({
@@ -460,7 +470,7 @@ export const getEarningsReport = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("EARNINGS REPORT ERROR =>", err);
 
     return res.status(500).json({
       status: 0,
