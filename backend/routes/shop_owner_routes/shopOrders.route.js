@@ -6,6 +6,7 @@ import {
   rejectShopOrder,
   markShopOrderReadyForPickup,
   getShopEarnings,
+  getEarningsReport
 } from "../../controllers/shop_owner/shopOrder.controller.js";
 import {
   createOrRefreshPickupOtp,
@@ -24,6 +25,11 @@ router.get(
 );
 router.patch("/orders/:order_id/accept", acceptShopOrder);
 router.patch("/orders/:order_id/reject", rejectShopOrder);
+router.get(
+  "/earnings-report",
+  authMiddleware(),
+  getEarningsReport
+);
 router.patch("/orders/:order_id/ready-for-pickup", markShopOrderReadyForPickup);
 router.post("/orders/:order_id/pickup-otp", createOrRefreshPickupOtp);
 router.get("/orders/:order_id/pickup-otp-status", getPickupOtpStatus);

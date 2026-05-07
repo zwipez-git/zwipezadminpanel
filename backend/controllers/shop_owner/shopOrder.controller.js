@@ -432,3 +432,39 @@ export const getShopEarnings = async (req, res) => {
     });
   }
 };
+export const getEarningsReport = async (req, res) => {
+  try {
+    const shopId = req.user.shopId;
+
+    const { from, to } = req.query;
+
+    const result = await pool.query(
+      `SELECT
+        order_id,
+        customer_id,
+        payment_method,
+        total_amount,
+        grand_total,
+        status,
+        accepted_at
+       FROM delivery_partner_order_accepts
+       WHERE shop_id = $1
+       AND DATE(accepted_at) BETWEEN $2 AND $3
+       ORDER BY accepted_at DESC`,
+      [shopId, from, to]
+    );
+
+    return res.json({
+      status: 1,
+      data: result.rows,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      status: 0,
+      message: "Server error",
+    });
+  }
+};
