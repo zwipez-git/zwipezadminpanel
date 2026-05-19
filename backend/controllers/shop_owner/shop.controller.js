@@ -388,21 +388,21 @@ export const getAllShopsWithProducts = async (req, res) => {
         COALESCE(
           json_agg(
             json_build_object(
-              'product_id', p.id,
+              'product_id', p.product_id,
               'product_name', p.product_name,
               'price', p.price,
               'image_url', p.image_url
             )
-          ) FILTER (WHERE p.id IS NOT NULL),
+          ) FILTER (WHERE p.product_id IS NOT NULL),
           '[]'
         ) AS products
 
       FROM shops s
 
       LEFT JOIN products p
-      ON s.phone_number = p.phone_number
+      ON s.shop_id = p.shop_id
 
-      GROUP BY s.phone_number
+      GROUP BY s.shop_id
     `);
 
     res.status(200).json({
