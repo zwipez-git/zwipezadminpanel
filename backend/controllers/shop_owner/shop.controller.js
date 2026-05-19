@@ -356,7 +356,7 @@ export const getAllShops = async (req, res) => {
   try {
 
     const result = await pool.query(
-      `SELECT * FROM shops ORDER BY id DESC`
+      `SELECT * FROM shops`
     );
 
     res.status(200).json({
