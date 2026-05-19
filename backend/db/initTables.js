@@ -517,6 +517,57 @@ CREATE TABLE IF NOT EXISTS shop_products (
 );
 `);
 
+    // ============================
+    // Customer issue reports
+    // ============================
+    // Stores: shop_id, delivery_partner_id, customer_id, order_id,
+    // reason, and which product was reported.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS order_issue_reports (
+        id SERIAL PRIMARY KEY,
+        shop_id INT NOT NULL REFERENCES shops(shop_id) ON DELETE CASCADE,
+        delivery_partner_id INT REFERENCES delivery_partners(id) ON DELETE SET NULL,
+        customer_id INT NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+        order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        product_id INT REFERENCES products(id) ON DELETE SET NULL,
+        order_item_id INT REFERENCES order_items(id) ON DELETE SET NULL,
+        reason TEXT NOT NULL,
+        cloudinary_image_url TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // In case table already exists without this column
+    await pool.query(`
+      ALTER TABLE order_issue_reports
+      ADD COLUMN IF NOT EXISTS cloudinary_image_url TEXT;
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_issue_reports_order_id
+      ON order_issue_reports(order_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_issue_reports_customer_id
+      ON order_issue_reports(customer_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_issue_reports_shop_id
+      ON order_issue_reports(shop_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_issue_reports_delivery_partner_id
+      ON order_issue_reports(delivery_partner_id);
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_order_issue_reports_product_id
+      ON order_issue_reports(product_id);
+    `);
+
 
     console.log(" All tables created ");
   } catch (error) {
