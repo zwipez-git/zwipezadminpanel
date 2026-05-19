@@ -354,14 +354,19 @@ export const toggleShopActive = async (req, res) => {
 //GET SHOP
 export const getAllShops = async (req, res) => {
   try {
-    const shops = await Shop.find().sort({ createdAt: -1 });
+
+    const result = await pool.query(
+      `SELECT * FROM shops ORDER BY id DESC`
+    );
 
     res.status(200).json({
       success: true,
-      totalShops: shops.length,
-      shops,
+      totalShops: result.rows.length,
+      shops: result.rows,
     });
+
   } catch (error) {
+
     console.log("Get All Shops Error:", error);
 
     res.status(500).json({
@@ -369,5 +374,6 @@ export const getAllShops = async (req, res) => {
       message: "Failed to fetch shops",
       error: error.message,
     });
+
   }
 };
