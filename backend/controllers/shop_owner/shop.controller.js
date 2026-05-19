@@ -391,8 +391,7 @@ export const getAllShopsWithProducts = async (req, res) => {
               'product_id', p.product_id,
               'product_name', p.product_name,
               'price', p.price,
-              'image_url', p.image_url,
-              'stock', p.stock
+              'image_url', p.image_url
             )
           ) FILTER (WHERE p.product_id IS NOT NULL),
           '[]'
