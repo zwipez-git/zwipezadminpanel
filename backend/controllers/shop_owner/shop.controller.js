@@ -159,9 +159,9 @@ export const registerShop = async (req, res) => {
       shop_image_url,
       certificate_image_url,
       has_certificate,
-       opening_time,
-  closing_time,
-  is_active
+      opening_time,
+      closing_time,
+      is_active
     } = req.body;
 
     if (!shop_name || !owner_name || !phone_number || !address) {
@@ -214,31 +214,31 @@ export const registerShop = async (req, res) => {
           certificate_image_url || null,
           has_certificate ?? false,
           opening_time || null,
-    closing_time || null,
-    is_active ?? true,
+          closing_time || null,
+          is_active ?? true,
           cleanPhone
         ]
       );
     } else {
       // 🆕 INSERT
-     result = await pool.query(
-  `INSERT INTO shops 
+      result = await pool.query(
+        `INSERT INTO shops 
   (shop_name, owner_name, phone_number, address, shop_image_url, certificate_image_url, has_certificate, opening_time, closing_time, is_active, is_verified)
    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true)
    RETURNING *`,
-  [
-    shop_name,
-    owner_name,
-    cleanPhone,
-    address,
-    shop_image_url || null,
-    certificate_image_url || null,
-    has_certificate ?? false,
-    opening_time || null,
-    closing_time || null,
-    is_active ?? true
-  ]
-);
+        [
+          shop_name,
+          owner_name,
+          cleanPhone,
+          address,
+          shop_image_url || null,
+          certificate_image_url || null,
+          has_certificate ?? false,
+          opening_time || null,
+          closing_time || null,
+          is_active ?? true
+        ]
+      );
     }
 
     res.json({
@@ -285,7 +285,7 @@ export const getShop = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-  // GET /api/shops/check/:phone
+// GET /api/shops/check/:phone
 export const checkShopExists = async (req, res) => {
   try {
     const phone = req.params.phone;
@@ -388,19 +388,19 @@ export const getAllShopsWithProducts = async (req, res) => {
         COALESCE(
           json_agg(
             json_build_object(
-              'product_id', p.product_id,
+              'product_id', p.id,
               'product_name', p.product_name,
               'price', p.price,
               'image_url', p.image_url
             )
-          ) FILTER (WHERE p.product_id IS NOT NULL),
+          ) FILTER (WHERE p.id IS NOT NULL),
           '[]'
         ) AS products
 
       FROM shops s
 
       LEFT JOIN products p
-      ON s.phone_number = p.shop_phone_number
+      ON s.phone_number = p.phone_number
 
       GROUP BY s.phone_number
     `);
