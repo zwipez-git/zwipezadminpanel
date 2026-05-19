@@ -15,7 +15,9 @@ import {
   checkShopExists,
   getMyShop,
   toggleShopActive,
-  getAllShops
+  getAllShops,
+  getAllShopsWithProducts
+
 } from "../../controllers/shop_owner/shop.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 const router = express.Router();
