@@ -377,3 +377,49 @@ export const getAllShops = async (req, res) => {
 
   }
 };
+//get shop product
+export const getAllShopsWithProducts = async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT 
+        s.*,
+
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'product_id', p.product_id,
+              'product_name', p.product_name,
+              'price', p.price,
+              'image_url', p.image_url,
+              'stock', p.stock
+            )
+          ) FILTER (WHERE p.product_id IS NOT NULL),
+          '[]'
+        ) AS products
+
+      FROM shops s
+
+      LEFT JOIN products p
+      ON s.phone_number = p.shop_phone_number
+
+      GROUP BY s.phone_number
+    `);
+
+    res.status(200).json({
+      success: true,
+      totalShops: result.rows.length,
+      shops: result.rows
+    });
+
+  } catch (error) {
+
+    console.log("GET SHOPS WITH PRODUCTS ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+
+  }
+};

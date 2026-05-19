@@ -32,5 +32,5 @@ router.put("/toggle-active", authMiddleware, toggleShopActive);
 // /api/shops/:phone (KEEP LAST)
 router.get("/:phone", getShop);
 router.get("/", getAllShops);
-
+router.get("/with-products", getAllShopsWithProducts);
 export default router;
