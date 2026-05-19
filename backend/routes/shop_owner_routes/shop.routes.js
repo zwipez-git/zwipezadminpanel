@@ -9,13 +9,13 @@
 // export default router;
 
 import express from "express";
-import { 
-  registerShop, 
-  getShop, 
+import {
+  registerShop,
+  getShop,
   checkShopExists,
   getMyShop,
   toggleShopActive,
-    getAllShops
+  getAllShops
 } from "../../controllers/shop_owner/shop.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 const router = express.Router();
@@ -31,6 +31,6 @@ router.get("/me", authMiddleware, getMyShop);
 router.put("/toggle-active", authMiddleware, toggleShopActive);
 // /api/shops/:phone (KEEP LAST)
 router.get("/:phone", getShop);
-router.get("/shops", getAllShops);
+router.get("/", getAllShops);
 
 export default router;
