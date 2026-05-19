@@ -27,8 +27,7 @@ import shopOrderRoutes from "./routes/shop_owner_routes/shopOrders.route.js";
 import shopProductRoutes from "./routes/shop_owner_routes/shopProduct.routes.js";
 import deliveryPartnerOrderRoutes from "./routes/delivery_partner_routes/deliveryOrders.route.js";
 import orderIssueReportRoutes from "./routes/orderIssueReport.route.js";
-import connectMongoDB from "./db/mongo.js";
-import nearestShopRoutes from "./routes/shop_owner_routes/nearestShop.route.js";
+
 
 console.log("🔥 NEW SERVER FILE RUNNING");
 dotenv.config();
@@ -63,12 +62,12 @@ app.use("/api", BannerImagesRoutes);
 app.use("/api", megaofferRoutes);
 app.use("/api", addressRoutes);
 
-app.use("/api",cartRoutes );
+app.use("/api", cartRoutes);
 // app.use("/user", customerRoutes);
-app.use("/api",DashboardRoutes)
-app.use("/api",CouponRoutes)
-app.use("/api",OrderRoutes)
-app.use("/api",agentsRoutes)
+app.use("/api", DashboardRoutes)
+app.use("/api", CouponRoutes)
+app.use("/api", OrderRoutes)
+app.use("/api", agentsRoutes)
 // app.use("/api/ai", aiRoutes);
 app.use("/api/cloudinary", cloudinaryRoutes);
 app.use("/api/user", customerRoutes);
@@ -80,7 +79,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/devapiService/cloudinary", cloudinaryRoutes);
 // app.use("/api/user", customerRoutes);
 app.use("/api/shops", shopRoutes);
-app.use("/api/shops-mongo", nearestShopRoutes);
+
 app.use("/api/shop", shopOrderRoutes);
 app.use("/api/shop-owner", shopProductRoutes);
 app.use("/api", productRoutes);
@@ -92,7 +91,6 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await initTables();
-    await connectMongoDB();
 
     app.listen(PORT, () => {
       console.log(` Server running on port ${PORT}`);

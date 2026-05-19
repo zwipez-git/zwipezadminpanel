@@ -351,3 +351,23 @@ export const toggleShopActive = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+//GET SHOP
+export const getAllShops = async (req, res) => {
+  try {
+    const shops = await Shop.find().sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      totalShops: shops.length,
+      shops,
+    });
+  } catch (error) {
+    console.log("Get All Shops Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch shops",
+      error: error.message,
+    });
+  }
+};
