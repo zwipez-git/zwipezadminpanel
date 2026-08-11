@@ -654,9 +654,10 @@ export const getOrderDetailsCustomer = async (req, res) => {
     }
 
     const orderRes = await pool.query(
-      `SELECT id, order_number, customer_id, grand_total, status, created_at, address, payment_method
-       FROM orders
-       WHERE id=$1 AND customer_id=$2`,
+      `SELECT o.id, o.order_number, o.customer_id, o.grand_total, o.status, o.created_at, o.address, o.payment_method, sor.reason AS reason, sor.reason AS cancel_reason, sor.reason AS reject_reason
+       FROM orders o
+       LEFT JOIN shop_order_rejects sor ON sor.order_id = o.id
+       WHERE o.id=$1 AND o.customer_id=$2`,
       [order_id, id]
     );
 
